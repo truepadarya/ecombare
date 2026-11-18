@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://truepadarya.github.io/ecombare/sitemap-index.xml
