@@ -1,0 +1,897 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Button from "@/components/Button.astro";
+import Img from "@/components/media/Img.astro";
+import { media } from "@/data/media";
+import Grid from "@/components/wrapper/Grid.astro";
+import Card from "@/components/item/Card.astro";
+import Form from "@/components/form/Form.astro";
+import Fieldset from "@/components/form/Fieldset.astro";
+import Input from "@/components/form/Input.astro";
+import Select from "@/components/form/Select.astro";
+import Choice from "@/components/form/Choice.astro";
+import Range from "@/components/form/Range.astro";
+import Textarea from "@/components/form/Textarea.astro";
+import Tabs from "@/components/interactive/Tabs.astro";
+import TabLink from "@/components/interactive/TabLink.astro";
+import Dropdown from "@/components/interactive/Dropdown.astro";
+import Overlay from "@/components/media/Overlay.astro";
+import Modal from "@/components/interactive/Modal.astro";
+import Slider from "@/components/interactive/Slider.astro";
+import Accordion from "@/components/interactive/Accordion.astro";
+import Marquee from "@/components/interactive/Marquee.astro";
+import AccordionItem from "@/components/interactive/AccordionItem.astro";
+import Video from "@/components/media/Video.astro";
+import Icon from "@/components/media/Icon.astro";
+import RichText from "@/components/typography/RichText.astro";
+import arrow from "@/assets/icons/arrow.svg";
+import arrowFull from "@/assets/icons/arrow-full.svg";
+import play from "@/assets/icons/play.svg";
+import pause from "@/assets/icons/pause.svg";
+import close from "@/assets/icons/close.svg";
+import check from "@/assets/icons/check.svg";
+import plus from "@/assets/icons/plus.svg";
+import eyeOff from "@/assets/icons/eye-off.svg";
+
+const preview_background = media.placeholderBackground.src;
+
+const heading = "We build things that help people work smarter";
+const text =
+  "We build things that help people work smarter, move faster, and grow further.";
+const lorem =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+---
+
+<Layout
+  title="Example Components"
+  description="Every layout variant, side by side."
+  theme="dark"
+>
+  <!-- stack -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>stack</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+        <Dropdown label="Dropdown">
+          <Paragraph>Some text</Paragraph>
+        </Dropdown>
+      </ButtonWrapper>
+      <Img src={preview_background} slot="column2" />
+    </ContentWrapper>
+  </Section>
+  <!-- stack centered -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper centered={true}>
+      <Eyebrow>stack · centered</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+        <Button emphasis="secondary">Button Text</Button>
+      </ButtonWrapper>
+      <Img src={preview_background} slot="column2" />
+    </ContentWrapper>
+  </Section>
+  <!-- auto-width -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="auto-width">
+      <Eyebrow>auto-width</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={28} slot="column2">{text}</Paragraph>
+      <ButtonWrapper slot="column2" marginTop="24">
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- columns -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="columns">
+      <Eyebrow>columns</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- columns reverse -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="columns" reverse>
+      <Eyebrow>columns · reverse</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- breakout -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="breakout">
+      <Eyebrow>breakout</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- breakout reverse -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="breakout" reverse>
+      <Eyebrow>breakout · reverse</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- contain -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="contain">
+      <Eyebrow>contain</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- contain reverse -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="contain" reverse>
+      <Eyebrow>contain · reverse</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- sticky-content -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="sticky-content">
+      <Eyebrow>sticky-content</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- sticky-visual -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="sticky-visual">
+      <Eyebrow>sticky-visual</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph
+        >Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque
+        faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi
+        pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
+        tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.
+        Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit
+        semper vel class aptent taciti sociosqu. Ad litora torquent per conubia
+        nostra inceptos himenaeos. Lorem ipsum dolor sit amet consectetur
+        adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+        placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu
+        aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus
+        bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc
+        posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora
+        torquent per conubia nostra inceptos himenaeos. Lorem ipsum dolor sit
+        amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae
+        pellentesque sem placerat. In id cursus mi pretium tellus duis
+        convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+        fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada
+        lacinia integer nunc posuere. Ut hendrerit semper vel class aptent
+        taciti sociosqu. Ad litora torquent per conubia nostra inceptos
+        himenaeos. Lorem ipsum dolor sit amet consectetur adipiscing elit.
+        Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus
+        mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
+        tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.
+        Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit
+        semper vel class aptent taciti sociosqu. Ad litora torquent per conubia
+        nostra inceptos himenaeos.</Paragraph
+      >
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- card -->
+  <Section paddingTop="small" paddingBottom="large">
+    <ContentWrapper variant="card" mediaOpacity={50}>
+      <Eyebrow variant="tag">card</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+      <Img slot="column2" src={preview_background} width={1920} height={1080} />
+    </ContentWrapper>
+  </Section>
+  <!-- grid -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="auto-width">
+      <Eyebrow>auto-width</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={28} slot="column2">{text}</Paragraph>
+      <ButtonWrapper slot="column2" marginTop="24">
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+    <Grid medium={3}>
+      <Card
+        heading="Heading"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Heading"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        image={preview_background}
+      />
+      <Card
+        heading="Heading"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="stacked"
+        image={preview_background}
+      />
+    </Grid>
+  </Section>
+  <!-- form -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>form</Eyebrow>
+    </ContentWrapper>
+    <Form name="contact">
+      <Fieldset legend="Contact Details" variant="columns">
+        <Input required variant="first-name" />
+        <Input variant="last-name" required />
+        <Input
+          variant="email"
+          label="Email Address"
+          placeholder="email@company.com"
+          required
+        />
+        <Grid medium={2}>
+          <Select variant="state" />
+          <Input variant="zip-code" placeholder="" />
+        </Grid>
+        <Fieldset legend="Date of Birth" variant="thirds" legendStyle="label">
+          <Select variant="month" labelHidden={true} />
+          <Select variant="day" labelHidden={true} />
+          <Select variant="year" from={1920} labelHidden={true} />
+        </Fieldset>
+        <Input
+          variant="phone"
+          label="Phone Number"
+          placeholder="000-000-0000"
+        />
+      </Fieldset>
+
+      <Fieldset legend="Legend" variant="columns">
+        <Fieldset legend="Favorite Color" variant="inline" legendStyle="label">
+          <Choice
+            type="radio"
+            name="color"
+            label="Purple"
+            value="purple"
+            checked={true}
+          />
+          <Choice type="radio" name="color" label="Lime" value="lime" />
+          <Choice type="radio" name="color" label="Blue" value="blue" />
+        </Fieldset>
+        <Fieldset
+          legend="Terms & Conditions"
+          variant="inline"
+          legendStyle="label"
+        >
+          <Choice label="I agree to the terms" name="terms" checked={true} />
+          <Choice label="I agree to the terms" name="updates" />
+        </Fieldset>
+        <Select
+          label="Job Title"
+          options={["Designer", "Developer", "Producer", "Something else"]}
+        />
+        <Input variant="date" label="Completion Date" />
+        <Range label="Label" unit="%" />
+        <Textarea label="Message" placeholder="Your message" required />
+      </Fieldset>
+
+      <ButtonWrapper marginTop="24">
+        <Button type="submit">Submit</Button>
+      </ButtonWrapper>
+    </Form>
+  </Section>
+  <!-- buttons -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>buttons</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+        <Button emphasis="secondary">Button Text</Button>
+        <Button variant="link">Button Text</Button>
+      </ButtonWrapper>
+      <ButtonWrapper>
+        <Button variant="arrow" direction="back" />
+        <Button variant="arrow" />
+        <Button variant="arrow" direction="up" />
+        <Button variant="arrow" direction="down" />
+        <Button variant="play" />
+        <Button variant="play" pressed={true} />
+        <Button variant="close" />
+      </ButtonWrapper>
+      <ButtonWrapper>
+        <Button variant="arrow" emphasis="secondary" direction="back" />
+        <Button variant="arrow" emphasis="secondary" />
+        <Button variant="arrow" emphasis="secondary" direction="up" />
+        <Button variant="arrow" emphasis="secondary" direction="down" />
+        <Button variant="play" emphasis="secondary" />
+        <Button variant="play" emphasis="secondary" pressed />
+        <Button variant="close" emphasis="secondary" />
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- tabs horizontal -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>tabs · horizontal</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Tabs>
+      <Fragment slot="links">
+        <TabLink>Strategy</TabLink>
+        <TabLink>Design</TabLink>
+        <TabLink>Development</TabLink>
+      </Fragment>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Strategy"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Design"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Development"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+    </Tabs>
+  </Section>
+  <!-- tabs side -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>tabs · side</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>Services</Heading>
+    </ContentWrapper>
+    <Tabs id="services" variant="side">
+      <Fragment slot="links">
+        <TabLink>Strategy</TabLink>
+        <TabLink>Design</TabLink>
+        <TabLink>Development</TabLink>
+      </Fragment>
+      <Card
+        heading="Strategy"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Design"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Development"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+    </Tabs>
+  </Section>
+  <!-- tabs auto -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>tabs · auto playback</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Tabs playback="auto" id="showcase">
+      <Fragment slot="links">
+        <TabLink>Tab Link 1</TabLink>
+        <TabLink>Tab Link 2</TabLink>
+        <TabLink>Tab Link 3</TabLink>
+      </Fragment>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Tab Content 1"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Tab Content 2"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+      <ContentWrapper variant="columns">
+        <Heading tag="h3" variant="h4" maxWidth={17}>"Tab Content 3"</Heading>
+        <Paragraph maxWidth={36}>{text}</Paragraph>
+        <ButtonWrapper>
+          <Button element="link" href="/example-components">Button Text</Button>
+        </ButtonWrapper>
+        <Img
+          slot="column2"
+          src={preview_background}
+          width={1920}
+          height={1080}
+        />
+      </ContentWrapper>
+    </Tabs>
+  </Section>
+  <!-- slider -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>slider · bleed</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Slider label="Services" small={2} medium={3}>
+      <Card
+        heading="Strategy"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Design"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Development"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Research"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Support"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+    </Slider>
+  </Section>
+  <!-- slider bleed -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>slider · crop-start</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Slider
+      variant="crop-start"
+      label="Case studies"
+      small={2}
+      medium={3}
+      large={3.27}
+    >
+      <Card
+        heading="Strategy"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Design"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Development"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Research"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+      <Card
+        heading="Support"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+        variant="cover"
+        theme="dark"
+        image={preview_background}
+      />
+    </Slider>
+  </Section>
+  <!-- slider contained -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>slider · contained</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Slider variant="contained" label="Services" small={2} medium={3}>
+      <Card
+        heading="Strategy"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Design"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Development"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Research"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+      <Card
+        heading="Support"
+        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+        buttonHref="/example-components"
+        buttonLabel="Button Text"
+      />
+    </Slider>
+  </Section>
+  <!-- marquee -->
+  <Section>
+    <ContentWrapper>
+      <Eyebrow>marquee</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+    </ContentWrapper>
+    <Marquee label="What we do">
+      <Paragraph variant="large">Strategy</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Design</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Development</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Research</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+    </Marquee>
+    <Marquee label="What we do" direction="backwards">
+      <Paragraph variant="large">Strategy</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Design</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Development</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Paragraph variant="large">Research</Paragraph>
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+    </Marquee>
+  </Section>
+  <!-- hero -->
+  <Section paddingTop="small" paddingBottom="small" fullHeight={true}>
+    <Img src={preview_background} slot="background" />
+    <Overlay slot="background" />
+    <ContentWrapper centered={true}>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+        <Dropdown label="Dropdown">
+          <Paragraph />
+        </Dropdown>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- video -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>video</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <Video
+        src={media.placeholderVideo.src}
+        poster={media.placeholderVideoPoster.src.src}
+        variant="16-9"
+        loop={true}
+        autoplay={true}
+        muted={true}
+        slot="column2"
+      />
+    </ContentWrapper>
+  </Section>
+  <!-- rich-text -->
+  <Section id="rich-text" paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>rich-text</Eyebrow>
+      <RichText maxWidth={60}>
+        <h1>H1</h1>
+        <h2>H2</h2>
+        <p>
+          <strong>Rich text</strong> takes <em>whatever a CMS hands it</em> and gives
+          every element the same rhythm the rest of the page uses, without a class
+          on any of them.
+        </p>
+        <h3>H3</h3>
+        <h4>H4</h4>
+        <h5>H5</h5>
+        <h6>H6</h6>
+        <ul>
+          <li>An item in a list<ul><li>A nested item</li></ul></li>
+          <li>
+            Another item, longer, so it wraps onto a second line and the spacing
+            between items can be read
+          </li>
+        </ul>
+        <blockquote>A pull quote, styled from the parent.</blockquote>
+        <p>
+          A closing paragraph with <a href="/example-components">a link</a> inside
+          it.
+        </p>
+      </RichText>
+    </ContentWrapper>
+    <RichText variant="large" maxWidth={60}
+      ><p>Paragraph large in RichText.</p></RichText
+    >
+    <RichText variant="small" maxWidth={60}
+      ><p>Paragraph small in RichText.</p></RichText
+    >
+    <div class="u-rich-text text-style-main">
+      <h3>Utility rich text</h3><p>
+        The u-rich-text class applies the same formatting to plain HTML.
+      </p><ol><li>First item</li><li>Second item</li></ol>
+    </div>
+  </Section>
+  <!-- icon -->
+  <Section id="icons" paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>icon</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>Icons</Heading>
+      <ButtonWrapper>
+        <Icon src={arrowFull} aria-label="Forward arrow" />
+        <Icon src={arrowFull} direction="back" aria-label="Back arrow" />
+        <Icon src={arrowFull} direction="up" aria-label="Up arrow" />
+        <Icon src={arrowFull} direction="down" aria-label="Down arrow" />
+        <Icon src={arrow} aria-label="Chevron" />
+        <Icon src={play} aria-label="Play" />
+        <Icon src={pause} aria-label="Pause" />
+        <Icon src={close} aria-label="Close" />
+        <Icon src={plus} aria-label="Plus" />
+      </ButtonWrapper>
+      <ButtonWrapper>
+        <Icon src={check} aria-label="Check mark" />
+        <Icon src={eyeOff} aria-label="Hidden project" />
+        <Icon src={play} aria-label="Product photo" />
+        <Icon src={check} aria-label="Visual check" />
+        <Icon src={plus} aria-label="Product cards" />
+      </ButtonWrapper>
+      <ButtonWrapper>
+        <Icon src={arrowFull} variant="small" />
+        <Icon src={arrowFull} variant="medium" />
+        <Icon src={arrowFull} variant="large" />
+        <Button
+          element="link"
+          href="#icons"
+          variant="arrow"
+          direction="down"
+          label="View icons"
+        />
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- accordion -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper variant="sticky-content">
+      <Eyebrow>accordion</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Accordion slot="column2" openFirst={true}>
+        <AccordionItem heading="This is some text inside of a div block.">
+          <Paragraph>{lorem}</Paragraph>
+        </AccordionItem>
+        <AccordionItem heading="This is some text inside of a div block.">
+          <Paragraph>{lorem}</Paragraph>
+        </AccordionItem>
+        <AccordionItem heading="This is some text inside of a div block.">
+          <Paragraph>{lorem}</Paragraph>
+        </AccordionItem>
+        <AccordionItem heading="This is some text inside of a div block.">
+          <Paragraph>{lorem}</Paragraph>
+        </AccordionItem>
+        <AccordionItem heading="This is some text inside of a div block.">
+          <Paragraph>{lorem}</Paragraph>
+        </AccordionItem>
+      </Accordion>
+    </ContentWrapper>
+  </Section>
+  <!-- modal -->
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper centered={true}>
+      <Eyebrow>modal</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button data-modal-open="modal-small">Open Modal</Button>
+        <Button data-modal-open="modal-side" emphasis="secondary">
+          Open Side Panel
+        </Button>
+        <Button data-modal-open="modal-full" emphasis="secondary">
+          Open Full Screen
+        </Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- small -->
+
+  <Modal id="modal-small" label="Small modal">
+    <ContentWrapper centered={true}>
+      <Heading tag="h2" variant="h4">{heading}</Heading>
+      <Paragraph>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Modal>
+  <!-- side panel -->
+
+  <Modal id="modal-side" label="Side panel" variant="side-panel">
+    <ContentWrapper>
+      <Heading tag="h2" variant="h4">{heading}</Heading>
+      <Paragraph>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Modal>
+  <!-- full screen -->
+
+  <Modal id="modal-full" label="Full screen" variant="full-screen">
+    <ContentWrapper centered={true}>
+      <Heading tag="h2" variant="h3">{heading}</Heading>
+      <Paragraph>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/example-components">Button Text</Button>
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Modal>
+</Layout>

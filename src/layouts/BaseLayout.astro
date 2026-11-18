@@ -1,0 +1,64 @@
+---
+import "@/styles/global.css";
+import BaseHead from "@/components/utility/BaseHead.astro";
+import SmoothScroll from "@/components/utility/SmoothScroll.astro";
+import SkipLink from "@/components/global/SkipLink.astro";
+import Nav from "@/components/global/Nav.astro";
+import Footer from "@/components/global/Footer.astro";
+import type { SeoProps } from "@/types.ts";
+
+type Props = SeoProps & {
+  /** Theme for the whole page. `inherit` leaves the root defaults in place. */
+  theme?: "inherit" | "light" | "dark" | "brand";
+  /** Show the site navigation. */
+  showNav?: boolean;
+  /** Show the site footer. */
+  showFooter?: boolean;
+  /**
+   * Let the first section start underneath the fixed navigation instead of reserving
+   * the nav height above the content. Give that section
+   * `paddingTop="navoverlap"` to clear the bar.
+   */
+  overlap?: boolean;
+};
+
+const {
+  theme = "inherit",
+  overlap = false,
+  showNav = true,
+  showFooter = true,
+  ...seo
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class:list={[theme !== "inherit" && `theme-${theme}`]}>
+  <head>
+    <BaseHead {...seo} />
+    <slot name="head" />
+  </head>
+  <body>
+    <SmoothScroll />
+    <SkipLink />
+    <Nav render={showNav} />
+    <main
+      id="main"
+      tabindex="-1"
+      class:list={["site-main_wrap", (overlap || !showNav) && "overlap"]}
+    >
+      <slot />
+    </main>
+    <slot name="footer"><Footer render={showFooter} /></slot>
+  </body>
+</html>
+
+<style is:global>
+  @layer components {
+    .site-main_wrap {
+      padding-top: var(--nav-height);
+      &.overlap {
+        padding-top: 0;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+import ImpactSection from "@/components/content/ImpactSection.astro";
+import GroasisSection from "@/components/content/GroasisSection.astro";
+import ContactForm from "@/components/content/ContactForm.astro";
+import HomeFooter from "@/components/global/HomeFooter.astro";
+import CaseBlobs from "@/components/content/CaseBlobs.astro";
+import Overlay from "@/components/media/Overlay.astro";
+import HeroPartnerMarquee from "@/components/content/HeroPartnerMarquee.astro";
+import ProgramSwitcher from "@/components/content/ProgramSwitcher.astro";
+import Video from "@/components/media/Video.astro";
+import { media } from "@/data/media";
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Underline from "@/components/typography/Underline.astro";
+import Heading from "@/components/typography/Heading.astro";
+import PartnerMarquees from "@/components/content/PartnerMarquees.astro";
+import TeamSection from "@/components/content/TeamSection.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import PageReveal from "@/components/utility/PageReveal.astro";
+import SignatureQuote from "@/components/content/SignatureQuote.astro";
+---
+
+<Layout theme="light" overlap showFooter={false}>
+  <PageReveal slot="head" />
+  <div class="min-height-screen flex-vertical-nowrap width-full">
+    <Section
+      id="hero"
+      theme="dark"
+      class="flex-grow width-full"
+      aria-labelledby="hero-heading"
+    >
+      <Fragment slot="background">
+        <Video
+          src={media.droneAerialVideo.src}
+          poster={media.droneAerialPoster.src.src}
+          variant="auto"
+          class="object-fit-cover"
+          loading="eager"
+          preload="auto"
+          controls={false}
+          data-video-controls="none"
+          aria-hidden="true"
+        />
+        <Overlay strength={50} aria-hidden="true" />
+      </Fragment>
+      <ContentWrapper centered class="padding-top-64" data-reveal-timing>
+        <Heading tag="h1" id="hero-heading" class="margin-bottom-64">
+          <span class="display-inline-block" data-reveal="0"
+            ><Underline>Eco</Underline></span
+          ><br /><span class="display-inline-block" data-reveal="1"
+            >projects</span
+          >
+        </Heading>
+        <Paragraph variant="main" maxWidth={70} data-reveal="2">
+          ECOmbare is Cyprus based environmental agency for people and companies
+          who want to create real environmental impact
+        </Paragraph>
+        <ButtonWrapper marginTop="28" data-reveal="3">
+          <Button>Plant with us</Button>
+        </ButtonWrapper>
+      </ContentWrapper>
+    </Section>
+    <HeroPartnerMarquee />
+  </div>
+  <Section
+    id="quote"
+    paddingTop="large"
+    paddingBottom="large"
+    mobilePaddingBottom="small"
+  >
+    <ContentWrapper centered>
+      <SignatureQuote />
+    </ContentWrapper>
+  </Section>
+  <Section id="programs" aria-label="Our signature programs">
+    <ProgramSwitcher />
+  </Section>
+  <ImpactSection />
+  <CaseBlobs />
+  <Section
+    id="partners"
+    paddingTop="small"
+    paddingBottom="small"
+    gap="88"
+    containerClass="max-width-full width-full"
+    aria-labelledby="partners-heading"
+    data-reveal-group
+  >
+    <ContentWrapper centered class="padding-inline-sitemargin">
+      <Heading tag="h2" variant="h4" id="partners-heading" data-reveal="0">
+        Some friends bring flowers<br />
+        Ours plant trees
+      </Heading>
+    </ContentWrapper>
+    <PartnerMarquees />
+  </Section>
+  <GroasisSection />
+  <TeamSection />
+  <Section id="contact" aria-labelledby="contact-heading">
+    <ContactForm />
+  </Section>
+  <HomeFooter slot="footer" />
+</Layout>

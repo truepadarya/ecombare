@@ -1,0 +1,44 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Button from "@/components/Button.astro";
+import SpacingReview from "@/components/content/SpacingReview.astro";
+import GeometryReview from "@/components/content/GeometryReview.astro";
+---
+
+<Layout
+  title="Расстояния · система Lumos"
+  description="Рабочая шкала отступов и семантические роли расстояний ecombare."
+  theme="light"
+  noindex={true}
+>
+  <Section
+    paddingTop="small"
+    paddingBottom="small"
+    containerClass="max-width-full"
+    gap="48"
+  >
+    <ContentWrapper>
+      <Heading tag="h1" variant="h3" class="weight-medium"
+        >Расстояния · система Lumos</Heading
+      >
+      <Paragraph
+        >Имена по размеру. Общая шкала для токенов, утилит и компонентов.</Paragraph
+      >
+      <ButtonWrapper marginTop="24">
+        <Button element="link" href="/typography-review" emphasis="secondary"
+          >Текстовые стили</Button
+        >
+        <Button element="link" href="/color-review" emphasis="secondary"
+          >Цвета</Button
+        >
+      </ButtonWrapper>
+    </ContentWrapper>
+    <SpacingReview />
+    <GeometryReview />
+  </Section>
+</Layout>

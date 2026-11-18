@@ -1,0 +1,243 @@
+---
+import Grid from "@/components/wrapper/Grid.astro";
+import { spacingSteps } from "@/data/spacing";
+import baseCss from "@/styles/base.css?raw";
+const endpoint = (step: string, name: string) =>
+  Number(
+    baseCss.match(new RegExp(`--space-${step}-${name}:\\s*([\\d.]+)`))?.[1] ??
+      step,
+  );
+const anchors = spacingSteps.map((step) => {
+  const design = endpoint(step, "max"),
+    extra = endpoint(step, "extra");
+  return {
+    step,
+    design,
+    wide: Math.round((design + ((extra - design) * 480) / 1060) * 100) / 100,
+    extra,
+  };
+});
+interface Props {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const roles = [
+  ["site-margin", "Site margins"],
+  ["site-gutter", "Grid gutter"],
+  ["section-space-small", "Section small"],
+  ["section-space-medium", "Section medium"],
+  ["section-space-large", "Section large"],
+  ["section-space-nav-overlap", "Navigation overlap"],
+  ["control-min-height", "Control minimum height"],
+  ["field-min-height", "Field minimum height"],
+  ["control-icon-size", "Icon control"],
+  ["control-pad-block", "Control block padding"],
+  ["button-pad-inline", "Button inline padding"],
+  ["field-pad-inline", "Field inline padding"],
+  ["nav-logo-height", "Navigation logo"],
+  ["nav-pad-block", "Navigation padding"],
+  ["nav-height", "Derived navigation height"],
+  ["max-width-small", "Small container cap"],
+];
+---
+
+{
+  render && (
+    <div class="spacing-review_wrap">
+      <section class="spacing-review_section" aria-labelledby="spacing-scale">
+        <h2 id="spacing-scale" class="text-style-h4 weight-bold">
+          Spacing / {spacingSteps.length} sizes
+        </h2>
+        <p>
+          Names match the exact 1440 design size. Each step grows independently
+          to 2500, then stays capped. Bars show the current computed size.
+        </p>
+        <details class="spacing-review_table">
+          <summary class="text-style-small">
+            Reference values at 1440 / 1920 / 2500
+          </summary>
+          <table class="text-style-small">
+            <caption>Reference sizes in px at a 16px root</caption>
+            <thead>
+              <tr>
+                <>
+                  <th>Token</th>
+                  <th>1440</th>
+                  <th>1920</th>
+                  <th>2500</th>
+                </>
+              </tr>
+            </thead>
+            <tbody>
+              {anchors.map(({ step, design, wide, extra }) => (
+                <tr>
+                  <th scope="row">space-{step}</th>
+                  <td>{design}</td>
+                  <td>{wide}</td>
+                  <td>{extra}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+        <Grid medium={2} large={3} class="gap-12">
+          {spacingSteps.map((step) => (
+            <div class="spacing-review_row text-style-small" data-spacing-row>
+              <code>space-{step}</code>
+              <span class="spacing-review_track">
+                <span
+                  class="spacing-review_bar"
+                  style={`width:var(--space-${step})`}
+                  data-spacing-measure
+                  aria-hidden="true"
+                />
+              </span>
+              <output data-spacing-value />
+            </div>
+          ))}
+        </Grid>
+      </section>
+      <section class="spacing-review_section" aria-labelledby="spacing-roles">
+        <h2 id="spacing-roles" class="text-style-h4 weight-bold">
+          Shared layout and control roles
+        </h2>
+        <Grid medium={3} large={4}>
+          {roles.map(([token, label]) => (
+            <div class="spacing-review_role" data-spacing-row>
+              <span>{label}</span>
+              <code>{token}</code>
+              <span
+                class="spacing-review_role-measure"
+                style={`width:var(--${token})`}
+                data-spacing-measure
+                aria-hidden="true"
+              />
+              <output data-spacing-value />
+            </div>
+          ))}
+        </Grid>
+        <p>
+          Site margins: 16 / 80 / 120 px at 360 / 1440 / 2500. Grid gutters: 12
+          / 24 / 32 px. Main content reaches 2260 px at 2500 and stays centered
+          above that width. Text line limits remain independent.
+        </p>
+      </section>
+      <article class="spacing-review_example padding-32 gap-24">
+        <h2 class="text-style-h5 weight-medium">
+          Live example / padding-32 / gap-24
+        </h2>
+        <p>
+          The same tokens power utilities and component props:{" "}
+          <code>Section gap="24"</code>,{" "}
+          <code>ButtonWrapper marginTop="32"</code>.
+        </p>
+      </article>
+    </div>
+  )
+}
+
+<style is:global>
+  @layer components {
+    .spacing-review_wrap {
+      display: grid;
+      gap: var(--space-64);
+      width: 100%;
+      min-width: 0;
+    }
+    .spacing-review_section {
+      display: grid;
+      gap: var(--space-24);
+      min-width: 0;
+    }
+    .spacing-review_table {
+      overflow-x: auto;
+      & table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      & :is(th, td) {
+        padding: var(--space-8);
+        text-align: start;
+        border-bottom: var(--border-width) solid var(--border);
+      }
+      & caption {
+        text-align: start;
+        padding-bottom: var(--space-12);
+      }
+    }
+    .spacing-review_row {
+      display: grid;
+      grid-template-columns: 6.5rem minmax(0, 1fr) 4rem;
+      align-items: center;
+      gap: var(--space-8);
+      min-width: 0;
+    }
+    .spacing-review_track {
+      display: flex;
+      align-items: center;
+      height: 1.5rem;
+    }
+    .spacing-review_bar {
+      display: block;
+      height: 0.5rem;
+      background: var(--accent);
+      border-radius: var(--radius-round);
+    }
+    .spacing-review_role {
+      position: relative;
+      display: grid;
+      gap: var(--space-8);
+      min-width: 0;
+      padding: var(--space-16);
+      background: var(--background-2);
+      border-radius: var(--radius-small);
+      & code {
+        overflow-wrap: anywhere;
+      }
+    }
+    .spacing-review_role-measure {
+      position: absolute;
+      height: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .spacing-review_example {
+      display: flex;
+      flex-direction: column;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-small);
+    }
+  }
+</style>
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(
+    ".spacing-review_wrap",
+  )) {
+    const measure = () => {
+      for (const row of root.querySelectorAll<HTMLElement>(
+        "[data-spacing-row]",
+      )) {
+        const bar = row.querySelector<HTMLElement>("[data-spacing-measure]");
+        const value = row.querySelector<HTMLOutputElement>(
+          "[data-spacing-value]",
+        );
+        if (bar && value)
+          value.textContent = `${Math.round(bar.getBoundingClientRect().width * 10) / 10} px`;
+      }
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    window.addEventListener("resize", measure);
+    void document.fonts.ready.then(measure);
+    measure();
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        observer.disconnect();
+        window.removeEventListener("resize", measure);
+      },
+      { once: true },
+    );
+  }
+</script>

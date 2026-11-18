@@ -1,0 +1,64 @@
+---
+import Marquee from "@/components/interactive/Marquee.astro";
+import Logo from "@/components/media/Logo.astro";
+import type { LogoName } from "@/data/logos";
+
+const rows: { direction: "forwards" | "backwards"; logos: LogoName[] }[] = [
+  {
+    direction: "forwards",
+    logos: [
+      "brainsome",
+      "dashinFoundation",
+      "adtech",
+      "vizor",
+      "indrive",
+      "faceapp",
+    ],
+  },
+  {
+    direction: "backwards",
+    logos: [
+      "mellow",
+      "justinJoy",
+      "exinity",
+      "smtShipping",
+      "togetherForever",
+      "wrike",
+      "kpmg",
+    ],
+  },
+];
+---
+
+<div class="width-full flex-vertical-nowrap gap-24">
+  {
+    rows.map((row, index) => (
+      <Marquee
+        direction={row.direction}
+        label={`Partner logos, row ${index + 1}`}
+        class="gap-24"
+        data-reveal={index + 1}
+        data-reveal-effect="fade"
+      >
+        {row.logos.map((logo) => (
+          <div class="partner-logo_card background-2 radius-main flex-horizontal-nowrap justify-content-center padding-32">
+            <div class="partner-logo_slot">
+              <Logo logo={logo} />
+            </div>
+          </div>
+        ))}
+      </Marquee>
+    ))
+  }
+</div>
+
+<style is:global>
+  @layer components {
+    .partner-logo_card {
+      width: calc(var(--space-112) * 2);
+    }
+    .partner-logo_slot {
+      height: var(--space-48);
+    }
+  }
+</style>

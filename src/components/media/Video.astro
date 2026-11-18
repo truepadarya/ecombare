@@ -1,0 +1,145 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { getMediaDescription } from "@/utils/media";
+
+type VideoRatio = "2-1" | "16-9" | "3-2" | "5-4" | "1-1" | "4-5" | "2-3";
+
+type Head = Omit<
+  HTMLAttributes<"video">,
+  "src" | "poster" | "loop" | "autoplay" | "muted" | "loading"
+> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Video URL. Omit to render nothing. */
+  src?: string;
+  /** Poster image URL. */
+  poster?: string;
+};
+
+type Tail = {
+  /** Playback speed multiplier. */
+  playbackRate?: number;
+  /** Playback scenario. Defaults to `viewport`; sound always requires manual playback. */
+  playback?: "viewport" | "viewport-restart" | "continuous" | "manual";
+  /** Restart after playback. */
+  loop?: boolean;
+  /** Initial position as a fraction of the duration. Used again by `viewport-restart`. */
+  startAtRatio?: number;
+  /** Set to `false` for manual playback. Prefer `playback` for selecting a scenario. */
+  autoplay?: boolean;
+  /** Mute audio. */
+  muted?: boolean;
+  /** Fit without cropping and remove the skeleton tint. */
+  transparent?: boolean;
+  /** Loading behavior. Viewport playback defaults to lazy, including its poster. */
+  loading?: "lazy" | "eager";
+};
+
+type Props = Head &
+  (
+    | {
+        /** Aspect ratio. */
+        variant?: VideoRatio;
+        ratio?: never;
+      }
+    | {
+        variant: "custom";
+        /** CSS `aspect-ratio` value. */
+        ratio?: string;
+      }
+    | {
+        variant: "auto";
+        ratio?: never;
+      }
+  ) &
+  Tail;
+
+type AllProps = Head &
+  Tail & {
+    variant?: VideoRatio | "custom" | "auto";
+    ratio?: string;
+  };
+
+const {
+  render = true,
+  src,
+  poster,
+  variant = "16-9",
+  ratio,
+  playback = "viewport",
+  playbackRate = 1,
+  loop = true,
+  startAtRatio = 0,
+  autoplay = true,
+  muted = true,
+  transparent = false,
+  controls = true,
+  preload,
+  loading,
+  "aria-label": label,
+  "aria-labelledby": labelledBy,
+  class: className,
+  ...rest
+} = Astro.props as AllProps;
+
+if (import.meta.env.DEV && render) {
+  if (!src) {
+    console.warn(
+      "[lumos] <Video> rendered without a `src`; nothing was output.",
+    );
+  }
+  if (variant === "custom" && !ratio) {
+    console.warn(
+      '[lumos] <Video variant="custom"> has no `ratio`, so no aspect ratio is applied. Set one, or pick a preset variant.',
+    );
+  }
+}
+
+const isCustom = variant === "custom";
+const mode = !muted || !autoplay ? "manual" : playback;
+const metadata = getMediaDescription(src);
+const hidden = rest["aria-hidden"] === true || rest["aria-hidden"] === "true";
+const accessibleLabel =
+  label ??
+  (!labelledBy && !hidden && !metadata?.decorative
+    ? metadata?.description
+    : undefined);
+---
+
+{
+  render && src && (
+    <video
+      src={src}
+      poster={poster}
+      {...{
+        loading: loading ?? (mode.startsWith("viewport") ? "lazy" : "eager"),
+      }}
+      aria-label={accessibleLabel}
+      aria-labelledby={labelledBy}
+      class:list={[
+        "video",
+        !isCustom && `ratio-${variant}`,
+        transparent && "transparent",
+        className,
+      ]}
+      style={isCustom && ratio ? `aspect-ratio: ${ratio};` : undefined}
+      loop={loop}
+      muted={muted}
+      controls={controls}
+      preload={preload ?? (mode.startsWith("viewport") ? "none" : "metadata")}
+      data-video-playback={mode}
+      data-video-rate={playbackRate !== 1 ? playbackRate : undefined}
+      data-video-start-at={
+        startAtRatio > 0 ? Math.min(startAtRatio, 0.99) : undefined
+      }
+      playsinline
+      {...rest}
+    />
+  )
+}
+
+<script>
+  import { initializeVideoPlayback } from "@/utils/video-playback";
+  const dispose = initializeVideoPlayback();
+  document.addEventListener("astro:before-swap", dispose, { once: true });
+</script>

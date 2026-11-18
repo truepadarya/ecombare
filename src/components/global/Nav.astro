@@ -1,0 +1,322 @@
+---
+import { SITE_NAME } from "@/consts";
+import Button from "@/components/Button.astro";
+import NavLink from "@/components/global/NavLink.astro";
+import Modal from "@/components/interactive/Modal.astro";
+import Img from "@/components/media/Img.astro";
+import { media } from "@/data/media";
+
+interface Props {
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const home = import.meta.env.BASE_URL;
+const destination = (id: string) =>
+  Astro.url.pathname === home ? `#${id}` : `${home}#${id}`;
+const links = [
+  ["About", "impact"],
+  ["What we do", "programs"],
+  ["Cases", "cases"],
+  ["Partners", "partners"],
+  ["Technology", "technology"],
+  ["Team", "team"],
+];
+const donate = "https://gogetfunding.com/restoreforest/";
+---
+
+{
+  render && (
+    <>
+      <header class="nav_wrap theme-dark" data-site-nav data-compact>
+        <div class="nav_bar width-full margin-inline-auto gap-24" data-nav-bar>
+          <a class="nav_logo" href={home} aria-label={`${SITE_NAME} home`}>
+            <span class="nav_symbol">
+              <Img
+                src={media.ecombareSymbolWhite.src}
+                alt=""
+                transparent
+                loading="eager"
+              />
+            </span>
+            <span class="nav_wordmark">
+              <Img
+                src={media.ecombareWordmarkWhite.src}
+                alt=""
+                transparent
+                loading="eager"
+              />
+            </span>
+          </a>
+          <nav class="nav_desktop" aria-label="Main navigation">
+            <ul class="nav_list flex-horizontal-nowrap gap-40 margin-block-0 padding-0">
+              {links.map(([label, id]) => (
+                <NavLink href={destination(id)}>{label}</NavLink>
+              ))}
+            </ul>
+          </nav>
+          <div class="nav_actions flex-horizontal-nowrap gap-8">
+            <span class="theme-light background-transparent">
+              <Button
+                mobileFullWidth={false}
+                element="link"
+                href={donate}
+                emphasis="secondary"
+                class="padding-inline-24"
+              >
+                Donate
+              </Button>
+            </span>
+            <Button
+              mobileFullWidth={false}
+              element="link"
+              href={destination("contact")}
+              class="padding-inline-24"
+            >
+              Get in touch
+            </Button>
+          </div>
+          <div class="nav_toggle">
+            <Button
+              mobileFullWidth={false}
+              emphasis="secondary"
+              data-modal-open="site-menu"
+              aria-controls="site-menu"
+              aria-expanded="false"
+              aria-haspopup="dialog"
+              class="padding-inline-24"
+            >
+              Menu
+            </Button>
+          </div>
+        </div>
+        <noscript>
+          <nav aria-label="Main navigation" class="padding-top-24">
+            <ul class="flex-horizontal-wrap gap-24 margin-block-0">
+              {links.map(([label, id]) => (
+                <NavLink href={destination(id)}>{label}</NavLink>
+              ))}
+              <NavLink href={donate}>Donate</NavLink>
+              <NavLink href={destination("contact")}>Get in touch</NavLink>
+            </ul>
+          </nav>
+        </noscript>
+      </header>
+      <Modal
+        id="site-menu"
+        label="Main navigation"
+        variant="full-screen"
+        class="theme-dark"
+      >
+        <div class="width-full flex-vertical-nowrap gap-40 alignment-center">
+          <nav aria-label="Main navigation">
+            <ul class="flex-vertical-nowrap gap-16 margin-block-0 padding-0">
+              {links.map(([label, id]) => (
+                <NavLink href={destination(id)} class="text-style-h5">
+                  {label}
+                </NavLink>
+              ))}
+            </ul>
+          </nav>
+          <div class="flex-horizontal-wrap justify-content-center gap-8">
+            <span class="theme-light background-transparent">
+              <Button
+                mobileFullWidth={false}
+                element="link"
+                href={donate}
+                emphasis="secondary"
+                class="padding-inline-24"
+              >
+                Donate
+              </Button>
+            </span>
+            <Button
+              mobileFullWidth={false}
+              element="link"
+              href={destination("contact")}
+              class="padding-inline-24"
+            >
+              Get in touch
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  )
+}
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-site-nav]");
+  if (header) {
+    const bar = header.querySelector<HTMLElement>("[data-nav-bar]")!;
+    const logo = header.querySelector<HTMLElement>(".nav_logo")!;
+    const list = header.querySelector<HTMLElement>(".nav_list")!;
+    const actions = header.querySelector<HTMLElement>(".nav_actions")!;
+    const toggle =
+      header.querySelector<HTMLButtonElement>("[data-modal-open]")!;
+    const menu = document.querySelector<HTMLDialogElement>("#site-menu")!;
+    const controller = new AbortController();
+    const { signal } = controller;
+    header.dataset.ready = "";
+    const lightSection = document.getElementById("quote");
+    let themeFrame = 0;
+    const updateTheme = () => {
+      themeFrame = 0;
+      const light =
+        !!lightSection &&
+        lightSection.getBoundingClientRect().top <= header.offsetHeight;
+      for (const element of [header, menu]) {
+        element.classList.toggle("theme-light", light);
+        element.classList.toggle("theme-dark", !light);
+      }
+    };
+    const scheduleTheme = () => {
+      if (!themeFrame) themeFrame = requestAnimationFrame(updateTheme);
+    };
+    addEventListener("scroll", scheduleTheme, { passive: true, signal });
+    const measure = () => {
+      // Equal side columns keep the links at the true page center. Measure
+      // their natural widths before hiding them, including enlarged text.
+      const required =
+        list.scrollWidth +
+        2 * Math.max(logo.offsetWidth, actions.scrollWidth) +
+        2 * parseFloat(getComputedStyle(bar).columnGap);
+      const compact = required > bar.clientWidth || innerWidth < 1024;
+      const changed = header.hasAttribute("data-compact") !== compact;
+      header.toggleAttribute("data-compact", compact);
+      if (!compact && menu.open) {
+        menu.close();
+        logo.focus({ preventScroll: true });
+      } else if (
+        changed &&
+        compact &&
+        [...header.querySelectorAll(".nav_desktop, .nav_actions")].some(
+          (element) => element.contains(document.activeElement),
+        )
+      ) {
+        toggle.focus({ preventScroll: true });
+      }
+      updateTheme();
+    };
+    menu.addEventListener(
+      "modal-open",
+      () => toggle.setAttribute("aria-expanded", "true"),
+      { signal },
+    );
+    menu.addEventListener(
+      "modal-close",
+      () => toggle.setAttribute("aria-expanded", "false"),
+      { signal },
+    );
+    menu.addEventListener(
+      "click",
+      (event) => {
+        const target =
+          event.target instanceof Element
+            ? event.target.closest<HTMLAnchorElement>("a[href]")
+            : null;
+        if (!target) return;
+        menu.close();
+        const url = new URL(target.href);
+        if (
+          url.origin === location.origin &&
+          url.pathname === location.pathname &&
+          url.hash
+        ) {
+          const section = document.getElementById(
+            decodeURIComponent(url.hash.slice(1)),
+          );
+          // Let the native link / shared Lenis anchor handler perform navigation.
+          // Move keyboard focus only after Modal restores its opener on close.
+          if (section)
+            requestAnimationFrame(() => {
+              if (!section.hasAttribute("tabindex"))
+                section.setAttribute("tabindex", "-1");
+              section.focus({ preventScroll: true });
+            });
+        }
+      },
+      { signal },
+    );
+    const resize = new ResizeObserver(measure);
+    [bar, list, actions, logo].forEach((element) => resize.observe(element));
+    addEventListener("resize", measure, { passive: true, signal });
+    void document.fonts.ready.then(measure);
+    measure();
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        menu.close();
+        controller.abort();
+        resize.disconnect();
+        cancelAnimationFrame(themeFrame);
+      },
+      { once: true },
+    );
+  }
+</script>
+
+<style is:global>
+  @layer components {
+    .nav_wrap {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: var(--z-nav);
+      padding: var(--nav-pad-block) var(--site-margin);
+      background: var(--background);
+      color: var(--text);
+      transition:
+        background-color var(--hover-duration) var(--hover-ease),
+        color var(--hover-duration) var(--hover-ease);
+    }
+    .nav_bar {
+      max-width: var(--max-width-main);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      min-height: var(--control-min-height);
+    }
+    .nav_logo {
+      justify-self: start;
+      display: grid;
+      grid-template-columns: 25.444fr 105.56fr;
+      align-items: center;
+      column-gap: 6.2%;
+      width: calc(var(--space-24) * 5.6);
+      max-width: 100%;
+      min-width: 0;
+    }
+    .nav_actions {
+      justify-self: end;
+    }
+    .nav_symbol,
+    .nav_wordmark {
+      transition: filter var(--hover-duration) var(--hover-ease);
+      .nav_wrap.theme-light & {
+        filter: invert(1);
+      }
+    }
+    .nav_toggle {
+      display: none;
+      justify-self: end;
+    }
+    .nav_list,
+    .nav_actions {
+      white-space: nowrap;
+    }
+    .nav_wrap[data-compact] {
+      .nav_bar {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .nav_desktop,
+      .nav_actions {
+        position: absolute;
+        visibility: hidden;
+        pointer-events: none;
+        width: max-content;
+      }
+      &[data-ready] .nav_toggle {
+        display: block;
+      }
+    }
+  }
+</style>

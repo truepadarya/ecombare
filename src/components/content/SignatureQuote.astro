@@ -1,0 +1,26 @@
+---
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Underline from "@/components/typography/Underline.astro";
+---
+
+<blockquote class="signature-quote margin-trim width-full" data-reveal="0">
+  <Paragraph maxWidth={36} class="text-style-h4 weight-bold margin-inline-auto">
+    <Underline progress={0}>Our Signature Programs</Underline> &#8212; for<br />
+    companies and individuals. Each one<br />
+    designed to get people outside, create<br />
+    measurable impact.
+  </Paragraph>
+</blockquote>
+<style is:global>
+  @layer components {
+    @media (width < 48rem) {
+      .signature-quote {
+        --h4: var(--h3);
+        text-align: start;
+      }
+      .signature-quote br {
+        display: none;
+      }
+    }
+  }
+</style>

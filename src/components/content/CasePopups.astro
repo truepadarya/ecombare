@@ -1,0 +1,247 @@
+﻿---
+import Modal from "@/components/interactive/Modal.astro";
+import CaseGallery from "@/components/content/CaseGallery.astro";
+import CasePhotoLightboxes from "@/components/content/CasePhotoLightboxes.astro";
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import RichText from "@/components/typography/RichText.astro";
+import Img from "@/components/media/Img.astro";
+import Overlay from "@/components/media/Overlay.astro";
+import { caseDetails, caseModalId } from "@/data/cases";
+import type { CaseDetail } from "@/data/cases";
+const details: CaseDetail[] = Object.values(caseDetails);
+---
+
+{
+  details.map((detail) => {
+    const modalId = caseModalId(detail.id);
+    return (
+      <Modal
+        id={modalId}
+        label={detail.title}
+        aria-labelledby={`${modalId}-heading`}
+        variant="full-screen"
+        bodyClass="padding-0"
+        class="theme-light"
+      >
+        <article data-case-detail={detail.id}>
+          <Section
+            fullHeight
+            theme="dark"
+            aria-labelledby={`${modalId}-heading`}
+          >
+            <Fragment slot="background">
+              <Img
+                src={detail.cover}
+                alt=""
+                variant="constrained"
+                sizes={`(max-aspect-ratio: ${detail.cover.width}/${detail.cover.height}) ${((detail.cover.width / detail.cover.height) * 100).toFixed(3)}vh, 100vw`}
+                data-case-cover
+                class="cover object-fit-cover"
+                style={
+                  detail.coverPosition
+                    ? `object-position: ${detail.coverPosition};`
+                    : undefined
+                }
+              />
+              <Overlay strength={40} />
+            </Fragment>
+            <ContentWrapper centered>
+              <div class="case-detail-intro width-full flex-vertical-nowrap gap-44 alignment-center margin-inline-auto">
+                <Heading tag="h2" id={`${modalId}-heading`} class="sr-only">
+                  {detail.title}
+                </Heading>
+                <time
+                  datetime={detail.date}
+                  class="text-style-large text-transform-uppercase"
+                >
+                  {detail.dateLabel}
+                </time>
+                <div class="width-full flex-vertical-nowrap gap-24 alignment-center">
+                  <div
+                    class:list={[
+                      "case-detail-logo",
+                      detail.invertLogo && "case-detail-logo-white",
+                    ]}
+                    style={
+                      detail.logoWidth
+                        ? `width: ${detail.logoWidth}rem;`
+                        : undefined
+                    }
+                  >
+                    <Img src={detail.logo} alt="" transparent />
+                  </div>
+                  <Paragraph variant="main" class="margin-block-0">
+                    {detail.summary}
+                  </Paragraph>
+                </div>
+              </div>
+            </ContentWrapper>
+          </Section>
+          <CaseGallery detail={detail}>
+            <Section gap="80">
+              <Grid large={2} class="align-items-start gap-gutter">
+                <div class="width-full">
+                  {detail.badge && (
+                    <div
+                      class="case-detail-badge"
+                      style={
+                        detail.badge.width
+                          ? `max-width: ${detail.badge.width}rem;`
+                          : undefined
+                      }
+                    >
+                      <Img
+                        src={detail.badge.image}
+                        alt={detail.badge.label}
+                        transparent
+                      />
+                    </div>
+                  )}
+                </div>
+                <div class="width-full flex-vertical-nowrap gap-64 align-items-stretch">
+                  <Paragraph variant="large" class="margin-block-0">
+                    {detail.summary}
+                  </Paragraph>
+                  <Grid
+                    variant="autofit"
+                    minColumnWidth={5}
+                    maxColumnCount={3}
+                    class="gap-24 align-items-start"
+                    role="list"
+                    aria-label="Project results"
+                  >
+                    {detail.statistics.map((stat) => (
+                      <div
+                        class="flex-vertical-nowrap gap-8 alignment-center"
+                        role="listitem"
+                      >
+                        <Paragraph
+                          variant="main"
+                          class="text-style-h3 weight-bold margin-block-0"
+                        >
+                          {stat.value}
+                        </Paragraph>
+                        <Paragraph
+                          variant="main"
+                          class="color-text-2 margin-block-0"
+                        >
+                          {stat.label}
+                        </Paragraph>
+                      </div>
+                    ))}
+                  </Grid>
+                  {detail.sections.map((section) => (
+                    <div class="flex-vertical-nowrap gap-16 align-items-stretch">
+                      <Heading
+                        tag="h3"
+                        variant="large"
+                        class="weight-medium margin-block-0"
+                      >
+                        {section.title}
+                      </Heading>
+                      {section.paragraphs?.map((text) => (
+                        <Paragraph
+                          variant="main"
+                          class="color-text-2 margin-block-0"
+                        >
+                          {text}
+                        </Paragraph>
+                      ))}
+                      {section.items && (
+                        <RichText
+                          variant="main"
+                          class="color-text-2 margin-block-0"
+                        >
+                          <ul>
+                            {section.items.map((item) => (
+                              <li class="margin-block-0">{item}</li>
+                            ))}
+                          </ul>
+                        </RichText>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Grid>
+            </Section>
+          </CaseGallery>
+        </article>
+      </Modal>
+    );
+  })
+}
+
+{details.map((detail) => <CasePhotoLightboxes detail={detail} />)}
+<script>
+  const prepare = (id: string | null) => {
+    if (!id) return;
+    const cover = document
+      .getElementById(id)
+      ?.querySelector<HTMLImageElement>("[data-case-cover]");
+    if (cover) {
+      cover.fetchPriority = "low";
+      cover.loading = "eager";
+    }
+  };
+  const nearby = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          prepare(entry.target.getAttribute("data-modal-open"));
+          nearby.unobserve(entry.target);
+        }
+      });
+    },
+    { rootMargin: "900px" },
+  );
+  document
+    .querySelectorAll("[data-case][data-modal-open]")
+    .forEach((trigger) => {
+      nearby.observe(trigger);
+      trigger.addEventListener(
+        "pointerenter",
+        () => prepare(trigger.getAttribute("data-modal-open")),
+        { once: true },
+      );
+      trigger.addEventListener(
+        "focus",
+        () => prepare(trigger.getAttribute("data-modal-open")),
+        { once: true },
+      );
+    });
+  document.addEventListener("astro:before-swap", () => nearby.disconnect(), {
+    once: true,
+  });
+  for (const article of document.querySelectorAll("[data-case-detail]")) {
+    article.closest("dialog")?.addEventListener("modal-open", () => {
+      const cover =
+        article.querySelector<HTMLImageElement>("[data-case-cover]");
+      if (cover) {
+        cover.fetchPriority = "high";
+        cover.loading = "eager";
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  @layer components {
+    .case-detail-intro {
+      max-width: 32.75rem;
+    }
+    .case-detail-logo {
+      width: 19.375rem;
+      max-width: 100%;
+    }
+    .case-detail-logo-white {
+      filter: brightness(0) invert(1);
+    }
+    .case-detail-badge {
+      max-width: 27.0625rem;
+    }
+  }
+</style>

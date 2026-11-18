@@ -1,0 +1,148 @@
+---
+import { media } from "@/data/media";
+import { Font } from "astro:assets";
+import {
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  SITE_IS_PUBLIC,
+  SITE_LOCALE,
+} from "@/consts.ts";
+import { getMediaDescription } from "@/utils/media";
+import { isNoindexRoute } from "@/utils/seo.ts";
+import type { SeoProps } from "@/types.ts";
+import { sitePath } from "@/utils/site-path";
+
+type Props = SeoProps;
+
+const {
+  title,
+  titleOverride,
+  description = SITE_DESCRIPTION,
+  image = media.placeholderImage.src.src,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  type = "website",
+  noindex,
+} = Astro.props;
+
+const isNoindex =
+  !SITE_IS_PUBLIC || isNoindexRoute(Astro.url.pathname) || noindex === true;
+
+const pageTitle =
+  titleOverride ?? (title ? `${title} | ${SITE_NAME}` : SITE_NAME);
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
+const registeredImage = getMediaDescription(image);
+const imageMetadata =
+  registeredImage && typeof registeredImage.src !== "string"
+    ? registeredImage.src
+    : undefined;
+const socialAlt = imageAlt ?? registeredImage?.description;
+const socialWidth = imageWidth ?? imageMetadata?.width;
+const socialHeight = imageHeight ?? imageMetadata?.height;
+const origin = new URL(sitePath(), Astro.site).href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${origin}#organization`,
+      name: SITE_NAME,
+      url: origin,
+      description: SITE_DESCRIPTION,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${origin}#website`,
+      name: SITE_NAME,
+      url: origin,
+      inLanguage: SITE_LOCALE,
+      publisher: { "@id": `${origin}#organization` },
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${canonical.href}#webpage`,
+      name: pageTitle,
+      description,
+      url: canonical.href,
+      inLanguage: SITE_LOCALE,
+      isPartOf: { "@id": `${origin}#website` },
+      about: { "@id": `${origin}#organization` },
+      primaryImageOfPage: {
+        "@type": "ImageObject",
+        url: socialImage.href,
+        caption: socialAlt,
+        width: socialWidth,
+        height: socialHeight,
+      },
+    },
+  ],
+};
+---
+
+<meta charset="utf-8" />
+<style is:inline>
+  @layer base, patterns, components, utilities;
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<Font
+  cssVariable="--font-helvetica-neue"
+  preload={[{ weight: 500 }, { weight: 700 }]}
+/>
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+{!isNoindex && <link rel="canonical" href={canonical} />}
+{isNoindex && <meta name="robots" content="noindex, nofollow" />}
+{!isNoindex && <meta name="robots" content="max-image-preview:large" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:locale" content={SITE_LOCALE.replace("-", "_")} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+{!isNoindex && <meta property="og:url" content={canonical} />}
+<meta property="og:image" content={socialImage} />
+{socialAlt && <meta property="og:image:alt" content={socialAlt} />}
+{
+  socialWidth && (
+    <meta property="og:image:width" content={String(socialWidth)} />
+  )
+}
+{
+  socialHeight && (
+    <meta property="og:image:height" content={String(socialHeight)} />
+  )
+}
+{
+  imageMetadata && (
+    <meta
+      property="og:image:type"
+      content={`image/${imageMetadata.format === "jpg" ? "jpeg" : imageMetadata.format}`}
+    />
+  )
+}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImage} />
+{socialAlt && <meta name="twitter:image:alt" content={socialAlt} />}
+{
+  !isNoindex && (
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData).replace(/</g, "\\u003c")}
+    />
+  )
+}
+
+<link rel="icon" type="image/svg+xml" href={sitePath("favicon.svg")} />
+<link
+  rel="describedby"
+  href={sitePath("llms.txt")}
+  type="text/plain"
+  title={`${SITE_NAME} for AI agents`}
+/>
+<meta name="generator" content={Astro.generator} />

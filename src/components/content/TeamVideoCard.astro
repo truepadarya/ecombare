@@ -1,0 +1,237 @@
+---
+import Video from "@/components/media/Video.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Img from "@/components/media/Img.astro";
+
+interface Props {
+  id: string;
+  mask: string;
+  src: string;
+  photo: ImageMetadata;
+  name: string;
+  role: string;
+}
+const { id, mask, src, photo, name, role } = Astro.props;
+const bounds = mask
+  .match(/viewBox="([^"]+)"/)?.[1]
+  .split(/\s+/)
+  .map(Number);
+const artwork = mask.match(/<svg\b[^>]*>([\s\S]*)<\/svg>/)?.[1];
+if (!bounds || bounds.length !== 4 || !artwork)
+  throw new Error(`Invalid team mask for ${id}`);
+const [left, top, width, height] = bounds;
+const scale = Math.min(382 / width, 400 / height);
+const x = (382 - width * scale) / 2 - left * scale;
+const y = (400 - height * scale) / 2 - top * scale;
+const clipId = `${id}-clip`;
+const clipArtwork = artwork.replaceAll(
+  "<path ",
+  `<path transform="translate(${x / 382} ${y / 400}) scale(${scale / 382} ${scale / 400})" `,
+);
+---
+
+<figure
+  class="flex-vertical-nowrap justify-content-start gap-24 alignment-center"
+  data-team-video
+>
+  <svg
+    width="0"
+    height="0"
+    class="position-absolute pointer-off"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <clipPath id={clipId} clipPathUnits="objectBoundingBox">
+        <Fragment set:html={clipArtwork} />
+      </clipPath>
+    </defs>
+  </svg>
+  <button
+    type="button"
+    class="team-video_trigger width-full flex-noshrink pointer-off"
+    aria-label={`Play video of ${name}`}
+    aria-describedby={`${id}-role`}
+    aria-pressed="false"
+    data-team-video-trigger
+  >
+    <div
+      class="team-video_mask width-full background-2 position-relative pointer-on"
+      style={`clip-path: url(#${clipId});`}
+    >
+      <Video
+        src={src}
+        aria-hidden="true"
+        variant="auto"
+        playback="manual"
+        loading="lazy"
+        preload="none"
+        data-video-controls="none"
+        controls={false}
+        muted
+        loop={false}
+        class="cover-absolute object-fit-cover pointer-off"
+      />
+      <div class="team-video_poster cover-absolute pointer-off">
+        <Img
+          src={photo}
+          alt=""
+          variant="constrained"
+          sizes="(min-width: 64rem) 30vw, (min-width: 48rem) 30vw, (min-width: 30rem) 45vw, 70vw"
+          draggable={false}
+          class="cover object-fit-cover"
+        />
+      </div>
+    </div>
+  </button>
+  <figcaption
+    class="width-full flex-vertical-nowrap justify-content-start flex-noshrink gap-8 alignment-center margin-trim"
+  >
+    <Paragraph
+      variant="small"
+      class="weight-bold text-transform-uppercase margin-block-0 text-box-normal"
+      >{name}</Paragraph
+    >
+    <Paragraph
+      variant="main"
+      class="margin-block-0 text-box-normal color-text-2"
+      id={`${id}-role`}>{role}</Paragraph
+    >
+  </figcaption>
+</figure>
+
+<script>
+  for (const card of document.querySelectorAll<HTMLElement>(
+    "[data-team-video]",
+  )) {
+    const trigger = card.querySelector<HTMLButtonElement>(
+      "[data-team-video-trigger]",
+    )!;
+    const video = card.querySelector<HTMLVideoElement>("video")!;
+    const name = card.querySelector("figcaption p")!.textContent!.trim();
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const hover = matchMedia("(hover: hover) and (pointer: fine)");
+    const controller = new AbortController();
+    const { signal } = controller;
+    let requested = false;
+    let revision = 0;
+    video.defaultPlaybackRate = 1.5;
+    video.playbackRate = 1.5;
+
+    const setControl = (playing: boolean) => {
+      trigger.setAttribute("aria-pressed", String(playing));
+      trigger.setAttribute(
+        "aria-label",
+        `${playing ? "Pause" : "Play"} video of ${name}`,
+      );
+    };
+    const stop = () => {
+      revision++;
+      requested = false;
+      video.pause();
+      video.currentTime = 0;
+      delete trigger.dataset.playing;
+      setControl(false);
+    };
+    const start = () => {
+      if (requested || document.hidden) return;
+      const attempt = ++revision;
+      requested = true;
+      setControl(true);
+      void video
+        .play()
+        .then(() => {
+          if (!requested) video.pause();
+        })
+        .catch(() => {
+          if (attempt === revision) stop();
+        });
+    };
+    video.addEventListener(
+      "playing",
+      () => {
+        if (requested) trigger.dataset.playing = "true";
+        else video.pause();
+      },
+      { signal },
+    );
+    video.addEventListener(
+      "ended",
+      () => {
+        requested = false;
+        setControl(false);
+      },
+      { signal },
+    );
+    video.addEventListener("error", stop, { signal });
+    trigger.addEventListener(
+      "pointerenter",
+      (event) => {
+        if (event.pointerType === "mouse" && hover.matches && !reduced.matches)
+          start();
+      },
+      { signal },
+    );
+    trigger.addEventListener(
+      "pointerleave",
+      (event) => {
+        if (event.pointerType === "mouse") stop();
+      },
+      { signal },
+    );
+    trigger.addEventListener("blur", stop, { signal });
+    trigger.addEventListener(
+      "click",
+      (event) => {
+        if (event.detail === 0 || !hover.matches || reduced.matches) {
+          requested ? stop() : start();
+        }
+      },
+      { signal },
+    );
+    card
+      .closest("[data-team-viewport]")
+      ?.addEventListener("scroll", stop, { passive: true, signal });
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (document.hidden) stop();
+      },
+      { signal },
+    );
+    reduced.addEventListener(
+      "change",
+      () => {
+        if (reduced.matches) stop();
+      },
+      { signal },
+    );
+    const visibility = new IntersectionObserver((entries) => {
+      if (!entries[0].isIntersecting) stop();
+    });
+    visibility.observe(trigger);
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        stop();
+        controller.abort();
+        visibility.disconnect();
+      },
+      { once: true },
+    );
+  }
+</script>
+
+<style is:global>
+  @layer components {
+    .team-video_trigger:focus-visible {
+      outline-offset: var(--focus-offset-inner);
+    }
+    .team-video_mask {
+      aspect-ratio: 382 / 400;
+    }
+    .team-video_trigger[data-playing] .team-video_poster {
+      visibility: hidden;
+    }
+  }
+</style>

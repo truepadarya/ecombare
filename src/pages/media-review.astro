@@ -1,0 +1,257 @@
+---
+import { readFile, stat } from "node:fs/promises";
+import { resolve } from "node:path";
+import sharp from "sharp";
+import type { SvgComponent } from "astro/types";
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Button from "@/components/Button.astro";
+import MediaReviewItem from "@/components/content/MediaReviewItem.astro";
+import Icon from "@/components/media/Icon.astro";
+import LogoReview from "@/components/content/LogoReview.astro";
+import { logos } from "@/data/logos";
+import arrow from "@/assets/icons/arrow-full.svg";
+import { getMediaDescription } from "@/utils/media";
+
+const iconComponents = import.meta.glob<SvgComponent>(
+  "/src/assets/icons/**/*.svg",
+  { eager: true, import: "default" },
+);
+const iconUrls = import.meta.glob<string>("/src/assets/icons/**/*.svg", {
+  eager: true,
+  query: "?url&no-inline",
+  import: "default",
+});
+const icons = Object.entries(iconComponents)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([file, Svg]) => ({
+    Svg,
+    src: iconUrls[file],
+    name: file.replace("/src/assets/icons/", ""),
+    metadata: getMediaDescription(iconUrls[file]),
+  }));
+const directions = ["back", "forward", "up", "down"] as const;
+
+const sources = import.meta.glob<string>(
+  "/src/assets/graphics/**/*.{webp,avif,png,jpg,jpeg,svg,mp4}",
+  { eager: true, query: "?url&no-inline", import: "default" },
+);
+
+const items = await Promise.all(
+  Object.entries(sources).map(async ([file, src]) => {
+    const localPath = resolve(`.${file}`);
+    const { size: bytes } = await stat(localPath);
+    const name = file.replace("/src/assets/graphics/", "");
+    const video = name.endsWith(".mp4");
+    let width = 0;
+    let height = 0;
+    if (video) {
+      const data = await readFile(localPath);
+      let offset = 0;
+      while ((offset = data.indexOf("tkhd", offset)) !== -1) {
+        const end = offset - 4 + data.readUInt32BE(offset - 4);
+        if (end <= data.length && end >= offset + 12) {
+          width = data.readUInt32BE(end - 8) / 65536;
+          height = data.readUInt32BE(end - 4) / 65536;
+          if (width > 0 && height > 0) break;
+        }
+        offset += 4;
+      }
+    } else {
+      const metadata = await sharp(localPath).metadata();
+      width = metadata.width ?? 0;
+      height = metadata.height ?? 0;
+    }
+    if (!width || !height) throw new Error(`Missing media dimensions: ${file}`);
+    const folder = name.includes("/") ? name.split("/")[0] : "other";
+    return {
+      src,
+      name,
+      bytes,
+      width,
+      height,
+      video,
+      folder,
+      poster: video
+        ? sources[file.replace(/\.mp4$/, "-poster.webp")]
+        : undefined,
+    };
+  }),
+);
+
+const labels: Record<string, string> = {
+  placeholders: "Placeholders",
+  other: "Graphics",
+};
+const groups = [
+  ...new Set([...Object.keys(labels), ...items.map((item) => item.folder)]),
+]
+  .map((folder) => ({
+    title: labels[folder] ?? folder,
+    id: folder.replaceAll("/", "-"),
+    items: items
+      .filter((item) => item.folder === folder)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }))
+  .filter((group) => group.items.length);
+---
+
+<Layout
+  title="Проверка медиа"
+  description="Изображения и видео для визуальной проверки качества."
+  theme="light"
+  noindex={true}
+>
+  <!-- introduction -->
+  <Section
+    paddingTop="small"
+    paddingBottom="small"
+    containerClass="max-width-full"
+  >
+    <ContentWrapper>
+      <Heading tag="h1" variant="h2">Проверка медиа</Heading>
+      <Paragraph>
+        {items.filter((item) => !item.video).length} изображений и {
+          items.filter((item) => item.video).length
+        } видео. Текущие файлы без дополнительного сжатия. Нажмите на изображение,
+        чтобы открыть его в полном размере.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="#partner-logos" emphasis="secondary"
+          >Partner logos / {Object.keys(logos).length}</Button
+        >
+        <Button element="link" href="/color-review" emphasis="secondary"
+          >Цвета · система Lumos</Button
+        >
+        <Button element="link" href="/typography-review" emphasis="secondary"
+          >Текстовые стили</Button
+        >
+        <Button element="link" href="#ui-icons" emphasis="secondary">
+          Иконки · {icons.length}
+        </Button>
+        {
+          groups.map((group) => (
+            <Button element="link" href={`#${group.id}`} emphasis="secondary">
+              {group.title} · {group.items.length}
+            </Button>
+          ))
+        }
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <!-- icons -->
+  <Section
+    id="ui-icons"
+    paddingTop="small"
+    paddingBottom="small"
+    containerClass="max-width-full"
+  >
+    <Heading tag="h2" variant="h4">Иконки · {icons.length}</Heading>
+    <Paragraph
+      >Каждая иконка в трёх размерах: маленьком, среднем и крупном.</Paragraph
+    >
+    <Grid small={2} medium={3} large={4}>
+      {
+        icons.map(({ Svg, src, name, metadata }) => (
+          <ContentWrapper class="padding-24" data-icon-id={metadata?.id}>
+            <Paragraph variant="small">
+              <a href={src} target="_blank" rel="noopener">
+                {name} ↗
+              </a>
+            </Paragraph>
+            <ButtonWrapper marginTop="0">
+              <Icon src={Svg} variant="small" />
+              <Icon src={Svg} variant="medium" />
+              <Icon src={Svg} variant="large" />
+            </ButtonWrapper>
+            <Paragraph variant="small" lang="en">
+              {metadata?.description}
+            </Paragraph>
+          </ContentWrapper>
+        ))
+      }
+    </Grid>
+    <ContentWrapper>
+      <Heading tag="h3" variant="h6">Направления и круглые кнопки</Heading>
+      <ButtonWrapper marginTop="0">
+        {
+          directions.map((direction) => (
+            <Icon src={arrow} direction={direction} variant="large" />
+          ))
+        }
+      </ButtonWrapper>
+      <ButtonWrapper marginTop="0">
+        {
+          directions.map((direction) => (
+            <Button
+              element="link"
+              href="#ui-icons"
+              variant="arrow"
+              direction={direction}
+              label="К иконкам"
+            />
+          ))
+        }
+      </ButtonWrapper>
+      <ButtonWrapper marginTop="0">
+        {
+          directions.map((direction) => (
+            <Button
+              element="link"
+              href="#ui-icons"
+              variant="arrow"
+              emphasis="secondary"
+              direction={direction}
+              label="К иконкам"
+            />
+          ))
+        }
+      </ButtonWrapper>
+    </ContentWrapper>
+  </Section>
+  <Section
+    id="partner-logos"
+    theme="light"
+    paddingTop="small"
+    paddingBottom="small"
+    gap="24"
+  >
+    <ContentWrapper>
+      <Heading tag="h2" variant="h4"
+        >Partner logos / {Object.keys(logos).length}</Heading
+      >
+      <Paragraph
+        >One SVG per partner, black artwork and transparent cutouts. Each SVG
+        fills its parent height with automatic width. Detailed logos fill the
+        slot; broad wordmarks have optical insets. Original proportions are
+        preserved.</Paragraph
+      >
+    </ContentWrapper>
+    <LogoReview />
+  </Section>
+  <!-- media groups -->
+  {
+    groups.map((group) => (
+      <Section
+        id={group.id}
+        paddingTop="small"
+        paddingBottom="small"
+        containerClass="max-width-full"
+      >
+        <Heading tag="h2" variant="h4">
+          {group.title} · {group.items.length}
+        </Heading>
+        <Grid medium={2}>
+          {group.items.map((item) => (
+            <MediaReviewItem {...item} />
+          ))}
+        </Grid>
+      </Section>
+    ))
+  }
+</Layout>

@@ -1,0 +1,44 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Img from "@/components/media/Img.astro";
+import { media } from "@/data/media";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+---
+
+<Layout title="Style guide" theme="dark" noindex={true}>
+  <Section
+    paddingBottom="even"
+    containerClass="flex-grow"
+    paddingTop="even"
+    class="flex-grow"
+    style="min-height: calc(100svh - var(--nav-height));"
+  >
+    <ContentWrapper
+      class="flex-grow theme-brand"
+      variant="card"
+      mediaOpacity={100}
+    >
+      <Img
+        src={media.placeholderImage.src}
+        variant="densities"
+        width={160}
+        transparent
+      />
+      <Heading variant="h1" tag="h1" class="margin-block-64 weight-medium"
+        >Style Guide</Heading
+      >
+      <Eyebrow variant="tag">v1.0.0</Eyebrow>
+      <Img
+        slot="column2"
+        src={media.placeholderBackground.src}
+        width={1920}
+        height={1080}
+        loading="eager"
+        fetchPriority="high"
+      />
+    </ContentWrapper>
+  </Section>
+</Layout>

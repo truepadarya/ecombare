@@ -1,0 +1,116 @@
+---
+import { siteTextStyles, textStyleNames } from "@/data/text-styles";
+interface Props {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const styles = siteTextStyles.map((variant) => ({
+  variant,
+  name: textStyleNames[variant],
+  pattern: `text-style-${variant}`,
+}));
+---
+
+{
+  render && (
+    <div class="typography-scale_wrap">
+      {styles.map((style) => (
+        <div class="typography-scale_item" data-scale-row>
+          <p
+            class:list={["typography-scale_sample", style.pattern]}
+            data-scale-sample
+          >
+            Design moves forward.
+          </p>
+          <p class="typography-scale_label text-style-small">
+            {style.name} <span aria-hidden="true">·</span>{" "}
+            <span data-scale-size />
+            <span class="typography-scale_token">
+              {style.variant} · <span data-scale-details />
+            </span>
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+<style is:global>
+  @layer components {
+    .typography-scale_wrap {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-32);
+      width: 100%;
+      min-width: 0;
+    }
+    .typography-scale_item {
+      min-width: 0;
+    }
+    .typography-scale_sample {
+      margin: 0;
+    }
+    .typography-scale_label {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5em;
+      margin: var(--space-12) 0 0;
+    }
+    .typography-scale_token {
+      font-family: var(--primary-family);
+    }
+  }
+</style>
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(
+    ".typography-scale_wrap",
+  )) {
+    const rows = [...root.querySelectorAll<HTMLElement>("[data-scale-row]")];
+    const sort = () => {
+      const measured = rows
+        .map((row, index) => {
+          const sample = row.querySelector<HTMLElement>("[data-scale-sample]")!;
+          const computed = getComputedStyle(sample);
+          const size = Number.parseFloat(computed.fontSize);
+          const details = row.querySelector<HTMLElement>(
+            "[data-scale-details]",
+          );
+          const line =
+            Math.round((Number.parseFloat(computed.lineHeight) / size) * 1000) /
+            1000;
+          const tracking =
+            Math.round(
+              ((Number.parseFloat(computed.letterSpacing) || 0) / size) * 10000,
+            ) / 10000;
+          if (details)
+            details.textContent = `${computed.fontWeight} · line ${line} · tracking ${tracking}em`;
+          const label = row.querySelector<HTMLElement>("[data-scale-size]");
+          if (label) label.textContent = `${Math.round(size * 10) / 10} px`;
+          return { row, index, size };
+        })
+        .sort((a, b) => b.size - a.size || a.index - b.index);
+      for (const [index, item] of measured.entries())
+        if (root.children[index] !== item.row)
+          root.insertBefore(item.row, root.children[index] ?? null);
+    };
+    let frame = 0;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(sort);
+    };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(root);
+    window.addEventListener("resize", schedule);
+    void document.fonts.ready.then(schedule);
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+        window.removeEventListener("resize", schedule);
+      },
+      { once: true },
+    );
+  }
+</script>

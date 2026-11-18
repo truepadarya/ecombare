@@ -1,0 +1,59 @@
+{
+  "name": "ecombare",
+  "type": "module",
+  "version": "1.0.0",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "check": "npm run check:media && astro check",
+    "check:media": "node scripts/check-media.mjs",
+    "media:add": "node scripts/add-media.mjs",
+    "test:media-workflow": "node --test scripts/test-media-workflow.mjs",
+    "test:media-descriptions": "node scripts/test-media-descriptions.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "test:colors": "node scripts/test-theme-colors.mjs",
+    "test:spacing": "node scripts/test-spacing.mjs",
+    "test:video": "node scripts/test-video-playback.mjs",
+    "test:interactions": "node scripts/test-interactions.mjs",
+    "test:team": "node scripts/test-team.mjs",
+    "test:nav": "node scripts/test-nav.mjs",
+    "test:page-reveal": "node scripts/test-page-reveal.mjs",
+    "test:scroll-scenes": "node scripts/test-scroll-scenes.mjs",
+    "test:mobile-refinement": "node scripts/test-mobile-refinement.mjs",
+    "test:program-scroll": "node scripts/test-program-scroll.mjs",
+    "test:video-browser": "node scripts/test-video-browser.mjs",
+    "test:starter": "node scripts/test-starter.mjs",
+    "test:typography": "node scripts/test-typography.mjs",
+    "test:responsive-typography": "node scripts/test-responsive-typography.mjs",
+    "test:rich-text": "node scripts/test-rich-text.mjs",
+    "test:form": "node scripts/test-form.mjs",
+    "test:contact-form": "node scripts/test-contact-form.mjs",
+    "test:contact-validation": "node scripts/test-contact-validation.mjs",
+    "test:home-footer": "node scripts/test-home-footer.mjs",
+    "test:case-blobs": "node scripts/test-case-blobs.mjs",
+    "test:case-popups": "node scripts/test-case-popups.mjs",
+    "test:case-gallery": "node scripts/test-case-gallery.mjs",
+    "test:case-content": "node scripts/test-case-content.mjs",
+    "test:groasis": "node scripts/test-groasis.mjs",
+    "test:logos": "node scripts/test-logos.mjs",
+    "test:underline": "node scripts/test-underline.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.11",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.4.1",
+    "lenis": "1.3.27",
+    "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "sharp": "^0.35.5"
+  }
+}

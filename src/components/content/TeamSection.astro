@@ -1,0 +1,281 @@
+---
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import TeamVideoCard from "@/components/content/TeamVideoCard.astro";
+import { teamVideos } from "@/data/team";
+---
+
+<div class="team-scroll position-relative width-full" data-team-scroll>
+  <div
+    class="team-stage background-1 width-full flex-vertical-nowrap align-items-stretch"
+  >
+    <Section
+      id="team"
+      paddingTop="large"
+      class="padding-bottom-40"
+      gap="40"
+      containerClass="max-width-full width-full"
+      aria-labelledby="team-heading"
+      data-reveal-group
+    >
+      <ContentWrapper centered class="padding-inline-sitemargin">
+        <div data-team-heading>
+          <Heading
+            tag="h2"
+            variant="h4"
+            id="team-heading"
+            data-reveal="0"
+            class="margin-top-0 margin-bottom-36"
+          >
+            The team that builds<br />tomorrow
+          </Heading>
+          <Paragraph
+            variant="main"
+            maxWidth={60}
+            data-reveal="1"
+            class="color-text-2 margin-block-0"
+          >
+            Cyprus is facing a water crisis and increasingly frequent
+          </Paragraph>
+        </div>
+      </ContentWrapper>
+      <div
+        class="team-viewport width-full"
+        data-team-viewport
+        data-reveal="2"
+        data-reveal-effect="fade"
+        role="group"
+        aria-label="Team members"
+        aria-describedby="team-browse-help"
+        tabindex="0"
+      >
+        <p class="sr-only" id="team-browse-help">
+          Scroll down to explore the team. You can also use the Left and Right
+          arrow keys, Home and End, or swipe on a touch screen.
+        </p>
+        <div
+          class="team-track position-relative flex-horizontal-nowrap align-items-stretch gap-gutter"
+          data-team-track
+        >
+          {
+            teamVideos.map((video, index) => (
+              <div
+                class="team-slide flex-noshrink"
+                role="group"
+                aria-label={`${index + 1} of ${teamVideos.length}`}
+              >
+                <TeamVideoCard {...video} />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </Section>
+  </div>
+</div>
+<div class="team-cta width-full padding-inline-sitemargin">
+  <ContentWrapper centered>
+    <ButtonWrapper marginTop="0" data-reveal="0"
+      ><Button>Plan an eco project with us</Button></ButtonWrapper
+    >
+  </ContentWrapper>
+</div>
+
+<style is:global>
+  @layer components {
+    .team-cta {
+      padding-block: var(--space-40) var(--section-space-medium);
+    }
+    @media (width < 48rem) {
+      .team-cta {
+        padding-top: 0;
+        padding-bottom: var(--section-space-large);
+      }
+    }
+    .team-scroll {
+      isolation: isolate;
+      overflow: clip;
+    }
+    .team-viewport {
+      --_visible: 1.4;
+      container-type: inline-size;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: var(--space-12) var(--site-margin);
+      scroll-padding-inline: var(--site-margin);
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y pinch-zoom;
+    }
+    .team-track {
+      width: max-content;
+    }
+    .team-slide {
+      min-width: 0;
+      width: min(
+        calc(
+          (100cqw - (var(--_visible) - 1) * var(--site-gutter)) /
+            var(--_visible)
+        ),
+        var(--_card-limit, 100cqw)
+      );
+    }
+    .team-scroll[data-pinned] .team-stage {
+      position: sticky;
+      top: 0;
+      min-height: 100svh;
+    }
+    .team-scroll[data-pinned] .team-viewport {
+      overflow-x: hidden;
+    }
+    @media (width >= 30rem) {
+      .team-viewport {
+        --_visible: 2.15;
+      }
+    }
+    @media (width >= 48rem) {
+      .team-viewport {
+        --_visible: 3.15;
+      }
+    }
+    @media (width >= 64rem) {
+      .team-viewport {
+        --_visible: 3.3;
+      }
+    }
+  }
+</style>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(
+    "[data-team-scroll]",
+  )) {
+    const stage = root.querySelector<HTMLElement>(".team-stage")!;
+    const section = root.querySelector<HTMLElement>("section")!;
+    const container = section.querySelector<HTMLElement>(".container")!;
+    const heading = root.querySelector<HTMLElement>("[data-team-heading]")!;
+    const viewport = root.querySelector<HTMLElement>("[data-team-viewport]")!;
+    const track = root.querySelector<HTMLElement>("[data-team-track]")!;
+    const slides = [...track.querySelectorAll<HTMLElement>(".team-slide")];
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const desktop = matchMedia("(min-width: 64rem)");
+    const controller = new AbortController();
+    const { signal } = controller;
+    let pinned = false,
+      travel = 0,
+      frame = 0;
+    const clamp = (value: number) => Math.max(0, Math.min(travel, value));
+    const draw = () => {
+      frame = 0;
+      if (pinned)
+        viewport.scrollLeft = clamp(-root.getBoundingClientRect().top);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(draw);
+    };
+    const measure = () => {
+      const s = getComputedStyle(section),
+        v = getComputedStyle(viewport);
+      const number = (value: string) => parseFloat(value) || 0;
+      const caption = Math.max(
+        ...slides.map(
+          (slide) =>
+            slide.offsetHeight -
+            slide.querySelector<HTMLElement>(".team-video_mask")!.offsetHeight,
+        ),
+      );
+      const available =
+        innerHeight -
+        number(s.paddingTop) -
+        number(s.paddingBottom) -
+        heading.offsetHeight -
+        number(getComputedStyle(container).rowGap) -
+        number(v.paddingTop) -
+        number(v.paddingBottom) -
+        caption;
+      const limit = Math.floor((available * 382) / 400);
+      // Keep a useful portrait size. Short screens and enlarged text use the
+      // naturally scrolling row instead of pinning a clipped or tiny scene.
+      pinned =
+        desktop.matches &&
+        !reduced.matches &&
+        limit >=
+          12 * number(getComputedStyle(document.documentElement).fontSize);
+      if (pinned) viewport.style.setProperty("--_card-limit", `${limit}px`);
+      else viewport.style.removeProperty("--_card-limit");
+      root.toggleAttribute("data-pinned", pinned);
+      travel = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+      if (pinned) {
+        root.style.height = `${stage.offsetHeight + travel}px`;
+        draw();
+      } else root.style.removeProperty("height");
+    };
+    const reveal = (offset: number) => {
+      const destination = clamp(offset);
+      if (pinned) {
+        const start = root.getBoundingClientRect().top + scrollY;
+        window.scrollTo({ top: start + destination, behavior: "instant" });
+      }
+      viewport.scrollTo({ left: destination, behavior: "instant" });
+    };
+    viewport.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.target !== viewport) return;
+        const stride = slides[1].offsetLeft - slides[0].offsetLeft;
+        const destination =
+          event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? travel
+              : event.key === "ArrowLeft"
+                ? viewport.scrollLeft - stride
+                : event.key === "ArrowRight"
+                  ? viewport.scrollLeft + stride
+                  : null;
+        if (destination === null) return;
+        event.preventDefault();
+        reveal(destination);
+      },
+      { signal },
+    );
+    viewport.addEventListener(
+      "focusin",
+      (event) => {
+        if (!(event.target instanceof Element)) return;
+        const slide = event.target.closest<HTMLElement>(".team-slide");
+        if (!slide) return;
+        const edge = parseFloat(getComputedStyle(viewport).paddingLeft);
+        const left = slide.offsetLeft,
+          right = left + slide.offsetWidth;
+        const visible = viewport.clientWidth - edge * 2;
+        const position = pinned
+          ? clamp(-root.getBoundingClientRect().top)
+          : viewport.scrollLeft;
+        if (left < position) reveal(left);
+        else if (right > position + visible) reveal(right - visible);
+      },
+      { signal },
+    );
+    const resize = new ResizeObserver(measure);
+    resize.observe(track);
+    resize.observe(heading);
+    addEventListener("resize", measure, { passive: true, signal });
+    addEventListener("scroll", schedule, { passive: true, signal });
+    reduced.addEventListener("change", measure, { signal });
+    void document.fonts.ready.then(measure);
+    measure();
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        resize.disconnect();
+        cancelAnimationFrame(frame);
+      },
+      { once: true },
+    );
+  }
+</script>

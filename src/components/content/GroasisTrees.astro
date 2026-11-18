@@ -1,0 +1,140 @@
+---
+import Img from "@/components/media/Img.astro";
+import { media } from "@/data/media";
+
+interface Props {
+  variant?: "left" | "right";
+}
+const { variant = "left" } = Astro.props;
+const left = variant === "left";
+const width = left ? 630.625 : 506;
+const height = left ? 528 : 453;
+const pieces = left
+  ? [
+      { image: media.groasisPine.src, x: 69.23, y: 0, w: 520.253, h: 520.253 },
+      {
+        image: media.groasisBushTree.src,
+        x: 0,
+        y: 188.984,
+        w: 333.94,
+        h: 333.94,
+      },
+      {
+        image: media.groasisFlowers.src,
+        x: 239.262,
+        y: 429.645,
+        w: 90.612,
+        h: 65.159,
+        inner: [0, -18.75, 100, 138.88],
+      },
+      {
+        image: media.groasisFlowers.src,
+        x: 171.043,
+        y: 434.352,
+        w: 68.182,
+        h: 62.133,
+        inner: [0, 0, 100, 109.73],
+      },
+      {
+        image: media.groasisSmallTree.src,
+        x: 285.07,
+        y: 128.281,
+        w: 399.099,
+        h: 399.099,
+      },
+      {
+        image: media.groasisGrass.src,
+        x: 285.07,
+        y: 474.348,
+        w: 305.069,
+        h: 29.659,
+        inner: [0.38, 4.51, 99.46, 92.68],
+      },
+      {
+        image: media.groasisGrass.src,
+        x: 13.234,
+        y: 475.066,
+        w: 305.069,
+        h: 29.659,
+        inner: [0.38, 4.51, 99.46, 92.68],
+      },
+    ]
+  : [
+      { image: media.groasisOak.src, x: 114, y: 0, w: 392, h: 441 },
+      { image: media.groasisBushTree.src, x: 0, y: 125, w: 328, h: 328 },
+      {
+        image: media.groasisFlowers.src,
+        x: 231,
+        y: 358,
+        w: 57,
+        h: 64,
+        inner: [0, -18.75, 156.14, 138.88],
+      },
+      {
+        image: media.groasisFlowers.src,
+        x: 164,
+        y: 367,
+        w: 67,
+        h: 61,
+        inner: [0, 0, 100, 109.73],
+      },
+      {
+        image: media.groasisGrass.src,
+        x: 177,
+        y: 408,
+        w: 301,
+        h: 29,
+        inner: [0.38, 4.51, 99.46, 92.68],
+      },
+      {
+        image: media.groasisGrass.src,
+        x: 34,
+        y: 408,
+        w: 301,
+        h: 29,
+        inner: [0.38, 4.51, 99.46, 92.68],
+      },
+    ];
+---
+
+<div
+  class:list={[
+    "groasis-trees position-relative width-full",
+    left ? "groasis-trees-left" : "groasis-trees-right",
+  ]}
+  aria-hidden="true"
+>
+  {
+    pieces.map(({ image, x, y, w, h, inner = [0, 0, 100, 100] }) => (
+      <div
+        class="position-absolute overflow-hidden"
+        style={`left:${(x / width) * 100}%;top:${(y / height) * 100}%;width:${(w / width) * 100}%;height:${(h / height) * 100}%;`}
+      >
+        <div
+          class="position-absolute"
+          style={`left:${inner[0]}%;top:${inner[1]}%;width:${inner[2]}%;height:${inner[3]}%;`}
+        >
+          <Img
+            src={image}
+            alt=""
+            transparent
+            variant="constrained"
+            sizes={`(min-width: 64rem) ${(w / width) * (left ? 43.793 : 35.139)}vw, ${Math.min(100, (w / width) * 106.667)}vw`}
+            class="cover object-fit-cover"
+          />
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style is:global>
+  @layer components {
+    .groasis-trees-left {
+      aspect-ratio: 630.625 / 528;
+    }
+    .groasis-trees-right {
+      aspect-ratio: 506 / 453;
+    }
+  }
+</style>

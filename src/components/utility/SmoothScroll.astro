@@ -1,0 +1,29 @@
+<script>
+  import Lenis from "lenis";
+  import "lenis/dist/lenis.css";
+
+  let lenis: Lenis | undefined;
+  const initialize = () => {
+    lenis?.destroy();
+    lenis = new Lenis({
+      autoRaf: true,
+      autoToggle: true,
+      anchors: true,
+      allowNestedScroll: true,
+    });
+  };
+
+  initialize();
+  document.addEventListener("site:correct-scroll", (event) => {
+    const top = (event as CustomEvent<number>).detail;
+    if (!lenis || !Number.isFinite(top)) return;
+    event.preventDefault();
+    lenis.resize();
+    lenis.scrollTo(top, { immediate: true, force: true });
+  });
+  document.addEventListener("astro:page-load", initialize);
+  document.addEventListener("astro:before-swap", () => {
+    lenis?.destroy();
+    lenis = undefined;
+  });
+</script>

@@ -1,0 +1,44 @@
+---
+import Logo from "@/components/media/Logo.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import { logos, type LogoName } from "@/data/logos";
+---
+
+<Grid medium={2} large={3}>
+  {
+    Object.entries(logos).map(([name, asset]) => (
+      <figure class="logo-review_card">
+        <div class="logo-review_slot">
+          <Logo logo={name as LogoName} />
+        </div>
+        <figcaption class="text-style-small">
+          {asset.description.replace(/ logo\.$/, "")}
+        </figcaption>
+      </figure>
+    ))
+  }
+</Grid>
+<style is:global>
+  @layer components {
+    .logo-review_slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--space-48);
+      width: auto;
+    }
+    .logo-review_card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-16);
+      min-width: 0;
+      padding: var(--space-24);
+      margin: 0;
+      text-align: center;
+      background: var(--background-2);
+      border-radius: var(--radius-main);
+    }
+  }
+</style>

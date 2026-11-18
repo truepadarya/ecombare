@@ -1,0 +1,44 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Button from "@/components/Button.astro";
+import ColorReview from "@/components/content/ColorReview.astro";
+---
+
+<Layout
+  title="Цвета · система Lumos"
+  description="Рабочая цветовая система ecombare: темы, роли и состояния Lumos."
+  theme="light"
+  noindex={true}
+>
+  <Section
+    paddingTop="small"
+    paddingBottom="small"
+    containerClass="max-width-full"
+  >
+    <ContentWrapper>
+      <Heading tag="h1" variant="h3" class="weight-medium"
+        >Цвета · система Lumos</Heading
+      >
+      <Paragraph variant="main" maxWidth={75}
+        >Рабочие темы, кнопки и поля используют общую палитру Lumos.</Paragraph
+      >
+      <ButtonWrapper>
+        <Button element="link" href="/spacing-review" emphasis="secondary"
+          >Расстояния</Button
+        >
+        <Button element="link" href="/typography-review" emphasis="secondary"
+          >Текстовые стили</Button
+        >
+        <Button element="link" href="/media-review" emphasis="secondary"
+          >Картинки и иконки</Button
+        >
+      </ButtonWrapper>
+    </ContentWrapper>
+    <ColorReview />
+  </Section>
+</Layout>

@@ -1,0 +1,29 @@
+﻿---
+import Modal from "@/components/interactive/Modal.astro";
+import Img from "@/components/media/Img.astro";
+import type { CaseDetail } from "@/data/cases";
+interface Props {
+  detail: CaseDetail;
+}
+const { detail } = Astro.props;
+---
+
+{
+  detail.gallery.map((photo, index) => (
+    <Modal
+      id={`case-photo-${detail.id}-${index}`}
+      variant="image"
+      label={`${detail.title}, photo ${index + 1} of ${detail.gallery.length}`}
+      bodyClass="padding-0"
+      class="theme-light"
+    >
+      <Img
+        src={photo.image}
+        variant="constrained"
+        sizes="(min-width: 960px) 906px, 100vw"
+        class="width-auto object-fit-contain"
+        style="max-height: min(41.25rem, calc(100svh - var(--space-48)));"
+      />
+    </Modal>
+  ))
+}

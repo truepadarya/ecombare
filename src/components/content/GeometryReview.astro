@@ -1,0 +1,151 @@
+---
+import Button from "@/components/Button.astro";
+import Input from "@/components/form/Input.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import Card from "@/components/item/Card.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+
+interface Props {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const themes = ["light", "dark", "brand"] as const;
+---
+
+{
+  render && (
+    <div class="geometry-review_wrap">
+      <section class="geometry-review_section" aria-labelledby="geometry-title">
+        <h2 id="geometry-title" class="text-style-h4 weight-bold">
+          Geometry and controls
+        </h2>
+        <p>
+          At 1440: buttons are 48px high with an 8px radius; fields are 64px
+          high with a 16px radius. On mobile, fields start at 56px with an 8px
+          radius and 16px side padding. Borders are 1px. Keyboard focus is 2px
+          with a 2px offset. Icon buttons stay circular and at least 44px.
+        </p>
+        <Grid large={3}>
+          {themes.map((theme) => (
+            <article class:list={["geometry-review_panel", `theme-${theme}`]}>
+              <h3 class="text-style-h5 weight-medium">Theme / {theme}</h3>
+              <Eyebrow variant="tag">Creative partnership</Eyebrow>
+              <div class="geometry-review_controls">
+                <Button>Start a project</Button>
+                <Button emphasis="secondary">Learn more</Button>
+                <Button disabled>Unavailable</Button>
+                <Button
+                  variant="arrow"
+                  direction="down"
+                  label="Scroll to projects"
+                />
+                <Button variant="play" />
+                <Button variant="close" />
+                <Button element="link" variant="link" href="#geometry-spacing">
+                  Text link
+                </Button>
+              </div>
+              <Input
+                name={`geometry-email-${theme}`}
+                variant="email"
+                label="Email"
+                placeholder="you@studio.com"
+              />
+              <Input
+                name={`geometry-idea-${theme}`}
+                shape="pill"
+                label="Your idea"
+                placeholder="Tell us about your project"
+              />
+            </article>
+          ))}
+        </Grid>
+      </section>
+      <section
+        class="geometry-review_section"
+        aria-labelledby="geometry-spacing"
+      >
+        <h2 id="geometry-spacing" class="text-style-h4 weight-bold">
+          Shared spacing and shapes
+        </h2>
+        <p>
+          Card padding uses space-32; controls and text share the existing Lumos
+          tokens. Textareas grow by line count rather than a fixed design
+          height.
+        </p>
+        <Grid medium={2}>
+          <Card
+            eyebrow="Ways to work together"
+            heading="A clear scope and deadline"
+            headingTag="h3"
+            text="A shared component with the main radius, consistent padding and the agreed typography."
+            buttonLabel="Discuss a project"
+            buttonHref="/example-components"
+          />
+          <article class="geometry-review_example">
+            <h3 class="text-style-h5 weight-medium">
+              Heading / description / action
+            </h3>
+            <p>
+              This example uses gap-24. ContentWrapper keeps the shared Lumos
+              text margins.
+            </p>
+            <div class="geometry-review_actions">
+              <Button>Primary action</Button>
+              <Button emphasis="secondary">Secondary action</Button>
+            </div>
+          </article>
+        </Grid>
+        <p>
+          Inspect hover, focus-visible, active, disabled and invalid states on
+          /interaction-review. Geometry is shared across all three themes.
+        </p>
+      </section>
+    </div>
+  )
+}
+
+<style is:global>
+  @layer components {
+    .geometry-review_wrap {
+      display: grid;
+      gap: var(--space-64);
+      width: 100%;
+      min-width: 0;
+    }
+    .geometry-review_section {
+      display: grid;
+      gap: var(--space-24);
+      min-width: 0;
+    }
+    .geometry-review_panel {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: var(--space-16);
+      padding: var(--space-24);
+      background: var(--background);
+      color: var(--text);
+      border: var(--border-width) solid var(--border);
+    }
+    .geometry-review_controls,
+    .geometry-review_actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-12);
+    }
+    .geometry-review_example {
+      display: grid;
+      gap: var(--space-24);
+      padding: var(--space-32);
+      border: var(--border-width) solid var(--border);
+    }
+    .geometry-review_section > :is(h2, p),
+    .geometry-review_panel > h3,
+    .geometry-review_example > :is(h3, p) {
+      margin: 0;
+    }
+  }
+</style>

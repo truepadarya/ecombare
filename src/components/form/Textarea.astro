@@ -1,0 +1,108 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { slug } from "@/utils/slug.ts";
+import FieldError from "./FieldError.astro";
+
+interface Props extends Omit<HTMLAttributes<"textarea">, "rows"> {
+  errorId?: string;
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Field label. */
+  label?: string;
+  /** Initial value. */
+  value?: string;
+  /** Submitted name. Defaults to the label slug. */
+  name?: string;
+  /** Empty-field hint. */
+  placeholder?: string;
+  /** Minimum visible lines. Defaults to `3`.
+   *
+   * @min 1
+   * @int */
+  minLines?: number;
+  /** Maximum visible lines. Defaults to `12`.
+   *
+   * @min 1
+   * @int */
+  maxLines?: number;
+  /** Require the field and mark its label. */
+  required?: boolean;
+  /** Visually hide the label while keeping its accessible name. */
+  labelHidden?: boolean;
+  /** Keep the placeholder lighter than entered text. */
+  placeholderWeight?: "inherit" | "regular";
+}
+
+const {
+  render = true,
+  errorId,
+  label,
+  value,
+  name,
+  placeholder,
+  minLines = 3,
+  maxLines = 12,
+  required = false,
+  labelHidden = false,
+  placeholderWeight = "inherit",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{
+  render && label && (
+    <label
+      class:list={["field", "form-textarea", className]}
+      style={`--_min-lines: ${minLines}; --_max-lines: ${maxLines};`}
+    >
+      <span
+        id={errorId ? `${errorId}-label` : undefined}
+        class:list={["field-label text-style-main", labelHidden && "sr-only"]}
+      >
+        <span>{label}</span>
+        {required && (
+          <span class="field-star" aria-hidden="true">
+            *
+          </span>
+        )}
+      </span>
+      <textarea
+        class="field-control form-textarea_field text-style-main"
+        data-placeholder-weight={
+          placeholderWeight === "regular" ? "regular" : undefined
+        }
+        name={name ?? slug(label)}
+        placeholder={placeholder}
+        required={required || undefined}
+        rows={minLines}
+        set:text={value ?? ""}
+        aria-describedby={errorId}
+        aria-labelledby={errorId ? `${errorId}-label` : undefined}
+        {...rest}
+      />
+      <FieldError id={errorId} />
+    </label>
+  )
+}
+
+<style is:global>
+  @layer components {
+    .form-textarea_field {
+      --_field-pad-block: var(--field-pad-inline);
+      field-sizing: content;
+      min-height: max(
+        var(--field-min-height),
+        calc(
+          var(--_min-lines, 3) * 1lh + var(--_field-pad-block) * 2 +
+            var(--border-width) * 2
+        )
+      );
+      max-height: calc(
+        var(--_max-lines, 12) * 1lh + var(--_field-pad-block) * 2 +
+          var(--border-width) * 2
+      );
+      resize: vertical;
+    }
+  }
+</style>

@@ -1,0 +1,372 @@
+---
+import Grid from "@/components/wrapper/Grid.astro";
+import Accordion from "@/components/interactive/Accordion.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Icon from "@/components/media/Icon.astro";
+import arrow from "@/assets/icons/arrow.svg";
+import Video from "@/components/media/Video.astro";
+import { programs } from "@/data/programs";
+---
+
+<div
+  class="program-switcher width-full accent-purple"
+  data-program-switcher
+  data-reveal-group
+>
+  <Grid large={12} class="align-items-center">
+    <div class="program-list" data-reveal="0">
+      <Accordion single openFirst class="flex-vertical-nowrap gap-16">
+        {
+          programs.map((program, index) => (
+            <details
+              class="program-item width-full"
+              data-accordion-group
+              data-program={program.id}
+            >
+              <summary class="program-summary text-style-h3 margin-block-0 text-box-normal gap-16">
+                <span aria-hidden="true">{index + 1}.</span>
+                <Heading
+                  tag="h3"
+                  variant="inherit"
+                  id={program.id + "-heading"}
+                  class="margin-block-0 text-box-normal"
+                >
+                  {program.title}
+                </Heading>
+                <span
+                  class="program-chevron text-style-main"
+                  aria-hidden="true"
+                >
+                  <Icon src={arrow} direction="down" />
+                </span>
+              </summary>
+              <div class="program-description margin-top-16 margin-trim">
+                <Paragraph
+                  variant="main"
+                  maxWidth={56}
+                  class="color-text-2 margin-block-0 text-box-normal"
+                >
+                  {program.description}
+                </Paragraph>
+              </div>
+            </details>
+          ))
+        }
+      </Accordion>
+    </div>
+    <div
+      class="program-visual align-self-center radius-main overflow-hidden"
+      data-program-visual
+      data-reveal="1"
+      data-reveal-effect="fade"
+    >
+      {
+        programs.map((program, index) => (
+          <div
+            class="program-panel"
+            data-program-panel={program.id}
+            hidden={index !== 0}
+            aria-labelledby={program.id + "-heading"}
+            role="region"
+          >
+            <Video
+              src={program.video}
+              poster={program.poster.src}
+              variant="custom"
+              ratio="830 / 1080"
+              playback="viewport-restart"
+              loop={false}
+              controls={false}
+              data-video-controls="none"
+              class="width-full object-fit-cover"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </Grid>
+</div>
+<style is:global>
+  @layer components {
+    .program-list {
+      min-width: 0;
+    }
+    .program-switcher {
+      overflow-anchor: none;
+    }
+    .program-summary {
+      scroll-margin-top: calc(var(--nav-height) + var(--space-24));
+      display: grid;
+      grid-template-columns: 0.8em minmax(0, 1fr);
+      cursor: pointer;
+      list-style: none;
+      transition:
+        color var(--hover-duration) var(--hover-ease),
+        opacity var(--open-duration) var(--open-ease);
+      &::-webkit-details-marker {
+        display: none;
+      }
+      .program-item[open] & {
+        color: var(--accent);
+      }
+    }
+    .program-description {
+      margin-left: calc(var(--h3) * 0.8 + var(--space-16));
+    }
+    .program-panel {
+      grid-area: 1 / 1;
+      opacity: 1;
+      transition:
+        opacity var(--open-duration) var(--open-ease),
+        display var(--open-duration) allow-discrete;
+    }
+    .program-panel[hidden] {
+      display: none;
+      opacity: 0;
+    }
+    @starting-style {
+      .program-panel:not([hidden]) {
+        opacity: 0;
+      }
+    }
+    @media (width >= 64rem) {
+      .program-item[data-distance="1"] > summary {
+        opacity: 0.7;
+      }
+      .program-item[data-distance="2"] > summary {
+        opacity: 0.5;
+      }
+      .program-item[data-distance="3"] > summary {
+        opacity: 0.3;
+      }
+      .program-item[data-distance="4"] > summary {
+        opacity: 0.1;
+      }
+    }
+    .program-item > .program-summary:is(:hover, :focus-visible) {
+      opacity: 1;
+    }
+    .program-switcher[data-motion="instant"]
+      :is(.program-summary, .program-panel, .program-chevron) {
+      transition: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .program-summary,
+      .program-panel,
+      .program-chevron {
+        transition: none;
+      }
+    }
+    .program-visual {
+      display: grid;
+    }
+    .program-chevron {
+      display: none;
+      opacity: 0.2;
+      transition:
+        rotate var(--open-duration) var(--open-ease),
+        opacity var(--open-duration) var(--open-ease);
+    }
+    .program-item[open] .program-chevron {
+      rotate: 180deg;
+      opacity: 1;
+    }
+    @media (width >= 64rem) {
+      .program-list {
+        grid-column: span 7;
+        padding-inline: var(--space-64);
+      }
+      .program-visual {
+        grid-column: span 5;
+      }
+    }
+    @media (width < 64rem) {
+      .program-item {
+        padding-block: var(--space-12);
+      }
+      .program-summary {
+        font-size: var(--h4);
+        grid-template-columns: 0.8em minmax(0, 1fr) auto;
+        align-items: start;
+      }
+      .program-chevron {
+        display: block;
+        align-self: start;
+        margin-top: 0.25em;
+      }
+      .program-item > .program-visual {
+        width: 100%;
+        margin-left: 0;
+        margin-top: var(--space-32);
+        margin-bottom: var(--space-24);
+      }
+      .program-description {
+        margin-left: 0;
+        margin-top: var(--space-24);
+        max-width: none;
+      }
+    }
+  }
+</style>
+<script>
+  import { correctScroll } from "@/utils/scroll";
+  for (const root of document.querySelectorAll<HTMLElement>(
+    "[data-program-switcher]",
+  )) {
+    const items = [
+      ...root.querySelectorAll<HTMLDetailsElement>(".program-item"),
+    ];
+    const visual = root.querySelector<HTMLElement>("[data-program-visual]")!;
+    const home = visual.parentElement!;
+    const panels = [
+      ...visual.querySelectorAll<HTMLElement>("[data-program-panel]"),
+    ];
+    const desktop = matchMedia("(min-width: 64rem)");
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const moving = new Set<Animation>();
+    const stopMoving = () => {
+      moving.forEach((animation) => animation.cancel());
+      moving.clear();
+    };
+    const track = (animation: Animation) => {
+      moving.add(animation);
+      void animation.finished.then(
+        () => moving.delete(animation),
+        () => moving.delete(animation),
+      );
+    };
+    let before: DOMRect[] | null = null;
+    const controller = new AbortController();
+    const { signal } = controller;
+    let active = items.find((item) => item.open) ?? items[0];
+    const place = () => {
+      if (desktop.matches && !items.some((item) => item.open))
+        active.open = true;
+      const parent = desktop.matches ? home : active;
+      if (visual.parentElement !== parent) parent.append(visual);
+    };
+    const sync = () => {
+      const opened = items.find((item) => item.open);
+      if (!opened) {
+        stopMoving();
+        before = null;
+        return;
+      }
+      const changed = active !== opened;
+      active = opened;
+      for (const panel of panels) {
+        const hidden = panel.dataset.programPanel !== active.dataset.program;
+        if (panel.hidden !== hidden) {
+          panel.hidden = hidden;
+        }
+      }
+      place();
+      const selected = items.indexOf(active);
+      items.forEach((item, index) => {
+        const distance = index - selected;
+        item.dataset.distance = String(
+          Math.min(4, distance < 0 ? -distance - 1 : distance),
+        );
+      });
+      if (changed) stopMoving();
+      if (
+        changed &&
+        before &&
+        !reduced.matches &&
+        root.dataset.motion !== "instant"
+      ) {
+        const previous = before;
+        const after = items.map((item) => item.getBoundingClientRect());
+        const style = getComputedStyle(root);
+        const timing = style.getPropertyValue("--open-duration").trim();
+        const duration =
+          parseFloat(timing) * (timing.endsWith("ms") ? 1 : 1000);
+        const easing = style.getPropertyValue("--open-ease").trim();
+        items.forEach((item, index) => {
+          const dy = previous[index].top - after[index].top;
+          if (Math.abs(dy) < 1) return;
+          const animation = item.animate(
+            [
+              { transform: `translateY(${dy}px)` },
+              { transform: "translateY(0)" },
+            ],
+            { duration, easing },
+          );
+          track(animation);
+        });
+        const description = active.querySelector<HTMLElement>(
+          ".program-description",
+        )!;
+        track(
+          description.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration,
+            easing,
+          }),
+        );
+      }
+      before = null;
+    };
+    for (const item of items) {
+      item.addEventListener("toggle", sync, { signal });
+      item.querySelector("summary")?.addEventListener(
+        "click",
+        (event) => {
+          if (!desktop.matches) {
+            event.preventDefault();
+            stopMoving();
+            before = null;
+            root.dataset.motion = "instant";
+            const summary = item.querySelector<HTMLElement>("summary")!;
+            const currentTop = summary.getBoundingClientRect().top;
+            const inset = parseFloat(getComputedStyle(summary).scrollMarginTop);
+            const anchor = Math.max(
+              inset,
+              Math.min(currentTop, innerHeight * 0.45),
+            );
+            const wasOpen = item.open;
+            // Finish the exclusive details change and media reparenting in one
+            // layout, before restoring the clicked heading's viewport position.
+            items.forEach((other) => {
+              other.open = false;
+            });
+            item.open = !wasOpen;
+            sync();
+            correctScroll(
+              scrollY + summary.getBoundingClientRect().top - anchor,
+            );
+            return;
+          }
+          if (item.open && desktop.matches) {
+            event.preventDefault();
+            return;
+          }
+          root.dataset.motion = event.detail === 0 ? "instant" : "smooth";
+          before = items.map((item) => item.getBoundingClientRect());
+        },
+        { signal },
+      );
+    }
+    reduced.addEventListener(
+      "change",
+      () => {
+        if (reduced.matches) {
+          stopMoving();
+        }
+      },
+      { signal },
+    );
+    desktop.addEventListener("change", place, { signal });
+    sync();
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        stopMoving();
+        controller.abort();
+      },
+      {
+        once: true,
+      },
+    );
+  }
+</script>

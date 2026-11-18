@@ -1,0 +1,217 @@
+---
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Img from "@/components/media/Img.astro";
+import GroasisTrees from "@/components/content/GroasisTrees.astro";
+import { media } from "@/data/media";
+---
+
+<div class="groasis-section width-full">
+  <Section
+    id="technology"
+    fullHeight
+    containerClass="max-width-full width-full"
+    aria-labelledby="groasis-heading"
+    data-reveal-group
+  >
+    <div class="groasis-scene position-relative width-full">
+      <div class="groasis-copy width-full margin-inline-auto">
+        <ContentWrapper centered>
+          <div
+            class="groasis-partnership position-relative margin-inline-auto"
+            role="img"
+            aria-label="ECOmbare, official partner of Groasis"
+            data-reveal="0"
+          >
+            <div
+              class="groasis-sticker groasis-sticker-eco theme-brand position-absolute"
+              aria-hidden="true"
+            >
+              <span class="groasis-eco-symbol"
+                ><Img
+                  src={media.ecombareSymbolWhite.src}
+                  alt=""
+                  transparent
+                  class="cover object-fit-contain"
+                /></span
+              >
+              <span class="groasis-eco-wordmark"
+                ><Img
+                  src={media.ecombareWordmarkWhite.src}
+                  alt=""
+                  transparent
+                  class="cover object-fit-contain"
+                /></span
+              >
+            </div>
+            <div
+              class="groasis-sticker groasis-sticker-partner accent-blue radius-round position-absolute"
+              aria-hidden="true"
+            >
+              <div class="groasis-partner-logo">
+                <Img
+                  src={media.groasisLogo.src}
+                  alt=""
+                  transparent
+                  class="cover object-fit-contain"
+                />
+              </div>
+            </div>
+            <div class="groasis-heart position-absolute" aria-hidden="true">
+              <Img
+                src={media.groasisPartnerHeart.src}
+                alt=""
+                transparent
+                class="width-full height-auto"
+              />
+            </div>
+          </div>
+          <Heading
+            tag="h2"
+            variant="h3"
+            id="groasis-heading"
+            data-reveal="1"
+            class="margin-top-0 margin-bottom-24 text-box-normal"
+          >
+            We don't just plant.<br />We make sure it survives.
+          </Heading>
+          <Paragraph
+            variant="main"
+            maxWidth={76}
+            data-reveal="2"
+            class="color-text-2 margin-block-0 text-box-normal"
+          >
+            Cyprus is facing a water crisis and increasingly frequent wildfires.
+            Planting a tree here isn't the hard part &#8212; keeping it alive
+            is. That's why we're an <span class="groasis-emphasis"
+              >official partner of Groasis</span
+            >, a Dutch technology that lets trees grow in even the driest,
+            harshest conditions &#8212; no irrigation, no maintenance, no
+            guesswork.
+          </Paragraph>
+        </ContentWrapper>
+      </div>
+      <div
+        class="groasis-left-art pointer-off"
+        data-reveal="3"
+        data-reveal-effect="fade"
+        data-reveal-pace="slow"
+      >
+        <GroasisTrees />
+      </div>
+      <div
+        class="groasis-right-art position-absolute pointer-off"
+        data-reveal="3"
+        data-reveal-effect="fade"
+        data-reveal-pace="slow"
+      >
+        <GroasisTrees variant="right" />
+      </div>
+    </div>
+  </Section>
+</div>
+
+<style is:global>
+  @layer components {
+    .groasis-section {
+      --screen-height: 0px;
+      overflow: clip;
+    }
+    .groasis-copy {
+      padding-inline: var(--site-margin);
+    }
+    .groasis-partnership {
+      width: 15rem;
+      max-width: 100%;
+      aspect-ratio: 356 / 159;
+      margin-bottom: var(--space-24);
+    }
+    .groasis-sticker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .groasis-sticker-eco {
+      left: 3.306%;
+      top: 14.83%;
+      width: 46.974%;
+      height: 40.914%;
+      rotate: -8.16deg;
+      gap: 4.5%;
+      background-color: var(--background);
+    }
+    .groasis-eco-symbol {
+      width: 14.76%;
+      height: 38.02%;
+      filter: brightness(0);
+    }
+    .groasis-eco-wordmark {
+      width: 61.22%;
+      height: 21.92%;
+      filter: brightness(0);
+    }
+    .groasis-sticker-partner {
+      left: 52.538%;
+      top: 42.25%;
+      width: 44.53%;
+      height: 46.206%;
+      rotate: 4.82deg;
+      background-color: var(--accent);
+    }
+    .groasis-partner-logo {
+      width: 63.27%;
+      height: 56%;
+      filter: brightness(0) invert(1);
+    }
+    .groasis-heart {
+      left: 42.6%;
+      top: 28%;
+      width: 15.475%;
+    }
+    .groasis-emphasis {
+      color: var(--text);
+    }
+    .groasis-left-art {
+      position: relative;
+      width: min(106.667%, 35rem);
+      left: 50%;
+      translate: -50% 0;
+      margin-top: var(--space-16);
+    }
+    .groasis-right-art {
+      display: none;
+    }
+    @media (width >= 64rem) {
+      .groasis-section {
+        --screen-height: 100svh;
+      }
+      .groasis-scene {
+        min-height: calc(100vw * 528 / 1440);
+      }
+      .groasis-copy {
+        max-width: min(50.556vw, 79rem);
+        padding-inline: 0;
+      }
+      .groasis-partnership {
+        width: clamp(15rem, 24.722vw, 38.625rem);
+        margin-bottom: 0;
+      }
+      .groasis-left-art {
+        position: absolute;
+        left: -16.389%;
+        top: 0;
+        width: 43.793%;
+        translate: none;
+        margin-top: 0;
+      }
+      .groasis-right-art {
+        display: block;
+        left: 72.639%;
+        top: 21.023%;
+        width: 35.139%;
+      }
+    }
+  }
+</style>

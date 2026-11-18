@@ -1,0 +1,62 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { slotContent } from "@/utils/slots.ts";
+import { keepShortWords } from "@/utils/typography";
+import type { SiteTextStyle } from "@/data/text-styles";
+
+type HeadingStyle = "inherit" | SiteTextStyle;
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Heading level. */
+  tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  /** Type style. */
+  variant?: HeadingStyle;
+  /**
+   * Maximum line length in characters.
+   *
+   * @min 1
+   * @int
+   */
+  maxWidth?: number;
+}
+
+const {
+  render = true,
+  tag: Tag = "h2",
+  variant = Tag,
+  maxWidth,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const content = await slotContent(Astro.slots);
+---
+
+{
+  render && content && (
+    <Tag
+      class:list={[
+        "heading",
+        variant === "inherit" ? "heading-inherit" : `text-style-${variant}`,
+        className,
+      ]}
+      style={maxWidth ? `--_mw: ${maxWidth}ch;` : undefined}
+      {...rest}
+    >
+      <Fragment set:html={keepShortWords(content)} />
+    </Tag>
+  )
+}
+
+<style is:global>
+  @layer components {
+    .heading.heading-inherit {
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      text-wrap: inherit;
+    }
+  }
+</style>

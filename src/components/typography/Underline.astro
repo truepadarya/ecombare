@@ -1,0 +1,273 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import stroke from "@/assets/graphics/underline.svg?raw";
+
+interface Props extends HTMLAttributes<"span"> {
+  /** Use text and inline formatting only. Links keep their native semantics. */
+  animate?: boolean;
+  /** Controlled stroke reveal, from 0 to 1. Update data-progress at runtime. */
+  progress?: number;
+}
+const { animate = true, progress, class: className, ...rest } = Astro.props;
+---
+
+<span
+  class:list={["underline", className]}
+  data-underline
+  data-animate={progress === undefined && animate}
+  data-progress={progress}
+  {...rest}
+  ><span class="underline_text"><slot /></span><span
+    class="underline_lines"
+    aria-hidden="true"><template set:html={stroke} /></span
+  ></span
+>
+
+<style is:global>
+  @layer components {
+    .underline {
+      position: relative;
+      isolation: isolate;
+      overflow-wrap: anywhere;
+      text-decoration-line: underline;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: min(0.14em, var(--space-12));
+      text-underline-offset: 0.08em;
+      text-decoration-skip-ink: none;
+    }
+    .underline[data-ready] {
+      text-decoration-line: none;
+    }
+    .underline_text {
+      position: relative;
+      z-index: 1;
+    }
+    .underline_lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      user-select: none;
+      color: var(--accent);
+      z-index: 0;
+    }
+    .underline_lines > svg {
+      position: absolute;
+      display: block;
+      max-width: none;
+      overflow: visible;
+      height: 0.28em;
+    }
+    .underline_lines path {
+      stroke-width: min(0.14em, var(--space-12));
+    }
+    .underline[data-pending] svg {
+      clip-path: inset(-50% 100% -50% -0.1em);
+    }
+    .underline[data-ready][data-progress] .underline_lines > svg {
+      clip-path: inset(-50% calc((1 - var(--_progress, 1)) * 100%) -50% -0.1em);
+    }
+    .underline[data-ready][data-progress="0"] .underline_lines {
+      visibility: hidden;
+    }
+    .underline[data-ready][data-progress="1"] .underline_lines > svg {
+      clip-path: none;
+    }
+    @media (prefers-reduced-motion: reduce), (forced-colors: active) {
+      .underline[data-ready] {
+        text-decoration-line: underline;
+      }
+      .underline_lines {
+        display: none;
+      }
+    }
+    @media print {
+      .underline[data-ready] {
+        text-decoration-line: underline;
+      }
+      .underline_lines {
+        display: none;
+      }
+    }
+  }
+</style>
+
+<script>
+  // One controller for the page: native text wrapping remains the source of truth.
+  const roots = [...document.querySelectorAll<HTMLElement>("[data-underline]")];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const forced = matchMedia("(forced-colors: active)");
+  const animations = new Map<HTMLElement, Animation[]>();
+  const geometry = new WeakMap<HTMLElement, string>();
+  const visited = new WeakSet<HTMLElement>();
+  const finish = (root: HTMLElement) => {
+    visited.add(root);
+    root.removeAttribute("data-pending");
+    animations.get(root)?.forEach((animation) => animation.cancel());
+    animations.delete(root);
+  };
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.8) continue;
+        const root = entry.target as HTMLElement;
+        observer.unobserve(root);
+        if (reduced.matches || forced.matches || visited.has(root)) {
+          finish(root);
+          continue;
+        }
+        visited.add(root);
+        root.removeAttribute("data-pending");
+        const lines = [
+          ...root.querySelectorAll<SVGSVGElement>(".underline_lines > svg"),
+        ];
+        const totalWidth = lines.reduce(
+          (sum, line) => sum + line.getBoundingClientRect().width,
+          0,
+        );
+        let delay = 200;
+        // Reveal the intact stroke at constant speed, including between wrapped
+        // lines. No normalized dashes: non-scaling strokes can truncate their ends.
+        const running = lines.map((line) => {
+          const duration =
+            (750 * line.getBoundingClientRect().width) / totalWidth;
+          const animation = line.animate(
+            [
+              { clipPath: "inset(-50% 100% -50% -0.1em)" },
+              { clipPath: "inset(-50% -0.1em -50% -0.1em)" },
+            ],
+            { duration, delay, easing: "linear", fill: "both" },
+          );
+          delay += duration;
+          return animation;
+        });
+        animations.set(root, running);
+        Promise.all(running.map((animation) => animation.finished)).then(
+          () => finish(root),
+          () => {},
+        );
+      }
+    },
+    { threshold: 0.8, rootMargin: "0px 0px -80px 0px" },
+  );
+  const layout = (root: HTMLElement) => {
+    const text = root.querySelector<HTMLElement>(".underline_text")!;
+    const layer = root.querySelector<HTMLElement>(".underline_lines")!;
+    const template = layer.querySelector<HTMLTemplateElement>("template")!;
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    // Nested inline elements can produce overlapping rectangles: merge by line.
+    const lines: {
+      left: number;
+      right: number;
+      top: number;
+      bottom: number;
+    }[] = [];
+    for (const rect of range.getClientRects()) {
+      if (!rect.width || !rect.height) continue;
+      const line = lines.find((line) => Math.abs(line.top - rect.top) < 2);
+      if (line) {
+        line.left = Math.min(line.left, rect.left);
+        line.right = Math.max(line.right, rect.right);
+        line.bottom = Math.max(line.bottom, rect.bottom);
+      } else
+        lines.push({
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+        });
+    }
+    const origin = layer.getBoundingClientRect();
+    const fontSize = parseFloat(getComputedStyle(root).fontSize);
+    const signature = JSON.stringify([
+      fontSize,
+      lines.map((line) => [
+        line.left - origin.left,
+        line.right - line.left,
+        line.bottom - origin.top,
+      ]),
+    ]);
+    if (geometry.get(root) === signature) return;
+    geometry.set(root, signature);
+    if (visited.has(root)) finish(root);
+    const fragment = document.createDocumentFragment();
+    for (const line of lines) {
+      const svg = template.content.firstElementChild!.cloneNode(
+        true,
+      ) as SVGSVGElement;
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("focusable", "false");
+      svg.style.left = `${line.left - origin.left}px`;
+      svg.style.top = `${line.bottom - origin.top - fontSize * 0.15}px`;
+      svg.style.width = `${line.right - line.left}px`;
+      fragment.append(svg);
+    }
+    layer.querySelectorAll(":scope > svg").forEach((svg) => svg.remove());
+    layer.append(fragment);
+    root.setAttribute("data-ready", "");
+  };
+  // Wait for the local font, then observe wrapping containers rather than the
+  // fragmented inline itself. Font/zoom/container changes share one layout pass.
+  void document.fonts.ready.then(() => {
+    const controlled = roots.filter((root) =>
+      root.hasAttribute("data-progress"),
+    );
+    const applyProgress = (root: HTMLElement) => {
+      const value = Number(root.dataset.progress);
+      root.style.setProperty(
+        "--_progress",
+        String(Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1),
+      );
+      layout(root);
+    };
+    const progressObserver = new MutationObserver((records) => {
+      for (const root of new Set(
+        records.map((record) => record.target as HTMLElement),
+      ))
+        applyProgress(root);
+    });
+    for (const root of controlled) {
+      applyProgress(root);
+      progressObserver.observe(root, {
+        attributes: true,
+        attributeFilter: ["data-progress"],
+      });
+    }
+    document.addEventListener(
+      "astro:before-swap",
+      () => progressObserver.disconnect(),
+      { once: true },
+    );
+    for (const root of roots) {
+      layout(root);
+      if (
+        root.dataset.animate !== "false" &&
+        !reduced.matches &&
+        !forced.matches
+      ) {
+        root.setAttribute("data-pending", "");
+        observer.observe(root);
+      } else finish(root);
+    }
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        for (const root of roots) {
+          layout(root);
+        }
+      });
+    };
+    const resize = new ResizeObserver(update);
+    new Set(roots.map((root) => root.parentElement!)).forEach((parent) =>
+      resize.observe(parent),
+    );
+    window.addEventListener("resize", update, { passive: true });
+    document.fonts.addEventListener("loadingdone", update);
+    const preferences = () => {
+      if (reduced.matches || forced.matches) roots.forEach(finish);
+    };
+    reduced.addEventListener("change", preferences);
+    forced.addEventListener("change", preferences);
+  });
+</script>

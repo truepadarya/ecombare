@@ -1,0 +1,107 @@
+---
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Form from "@/components/form/Form.astro";
+import Input from "@/components/form/Input.astro";
+import Textarea from "@/components/form/Textarea.astro";
+import Button from "@/components/Button.astro";
+---
+
+<div class="contact-form width-full margin-inline-auto" data-reveal-group>
+  <ContentWrapper centered>
+    <Heading
+      tag="h2"
+      variant="h4"
+      id="contact-heading"
+      data-reveal="0"
+      class="margin-bottom-40"
+    >
+      Let's get<br />our hands dirty
+    </Heading>
+    <Form
+      name="eco-project-request"
+      id="contact-form"
+      data-contact-validation
+      data-reveal="1"
+      data-reveal-effect="fade"
+      aria-labelledby="contact-heading"
+      errorMessage="Sending is not available yet. Your request has not been sent."
+    >
+      <p
+        class="margin-block-0 text-style-main"
+        data-validation-summary
+        role="alert"
+        hidden
+      >
+      </p>
+      <Input
+        label="Name"
+        name="name"
+        id="contact-name"
+        errorId="contact-name-error"
+        placeholder="Name*"
+        placeholderWeight="regular"
+        autocomplete="name"
+        required
+        labelHidden
+        maxlength={100}
+      />
+      <Input
+        variant="email"
+        label="Email"
+        name="email"
+        id="contact-email"
+        errorId="contact-email-error"
+        placeholder="Email*"
+        placeholderWeight="regular"
+        required
+        labelHidden
+        maxlength={254}
+        spellcheck="false"
+        autocapitalize="none"
+      />
+      <Input
+        label="Company"
+        name="company"
+        id="contact-company"
+        errorId="contact-company-error"
+        placeholder="Company"
+        placeholderWeight="regular"
+        autocomplete="organization"
+        labelHidden
+        maxlength={200}
+      />
+      <Textarea
+        label="What you have in mind"
+        name="message"
+        id="contact-message"
+        errorId="contact-message-error"
+        placeholder="What you have in mind"
+        placeholderWeight="regular"
+        labelHidden
+        maxlength={5000}
+        minLines={3}
+      />
+      <ButtonWrapper marginTop="16">
+        <Button type="submit" disabled data-enable-with-js
+          >Send a request</Button
+        >
+      </ButtonWrapper>
+      <noscript>
+        <Paragraph variant="main"
+          >Please enable JavaScript to use this form.</Paragraph
+        >
+      </noscript>
+    </Form>
+  </ContentWrapper>
+</div>
+
+<style is:global>
+  @layer components {
+    .contact-form {
+      max-width: 43rem;
+    }
+  }
+</style>

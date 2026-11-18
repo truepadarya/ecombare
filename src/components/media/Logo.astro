@@ -1,0 +1,71 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { logos, type LogoName } from "@/data/logos";
+
+interface Props extends HTMLAttributes<"svg"> {
+  render?: boolean;
+  logo: LogoName;
+  decorative?: boolean;
+}
+const {
+  render = true,
+  logo,
+  decorative = false,
+  class: className,
+  ...rest
+} = Astro.props;
+const asset = logos[logo];
+const attributes = asset.svg.match(/^<svg\b([^>]*)>/)?.[1] ?? "";
+const viewBox = attributes.match(/\bviewBox="([^"]+)"/)?.[1];
+const width = attributes.match(/\bwidth="([^"]+)"/)?.[1];
+const height = attributes.match(/\bheight="([^"]+)"/)?.[1];
+if (!viewBox || !width || !height)
+  throw new Error(`Logo ${logo} has no intrinsic bounds.`);
+
+// SVG masks and clip paths need fresh IDs when a logo appears twice on one page.
+// Sources are trusted local SVGs, not user-provided markup.
+const prefix = `logo-${crypto.randomUUID()}`;
+const body = asset.svg
+  .replace(/^<svg\b[^>]*>/, "")
+  .replace(/<\/svg>\s*$/, "")
+  .replace(/\bid="([^"]+)"/g, (_, id) => `id="${prefix}-${id}"`)
+  .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${prefix}-${id})`)
+  .replace(
+    /\b(href|xlink:href)="#([^"]+)"/g,
+    (_, attr, id) => `${attr}="#${prefix}-${id}"`,
+  );
+---
+
+{
+  render && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={viewBox}
+      width={width}
+      height={height}
+      fill="none"
+      class:list={["logo", className]}
+      data-logo={logo}
+      focusable="false"
+      role={decorative ? undefined : "img"}
+      aria-hidden={decorative ? "true" : undefined}
+      aria-label={
+        decorative || rest["aria-labelledby"] ? undefined : asset.description
+      }
+      {...rest}
+    >
+      <Fragment set:html={body} />
+    </svg>
+  )
+}
+<style is:global>
+  @layer components {
+    .logo {
+      display: block;
+      flex: none;
+      height: 100%;
+      width: auto;
+      max-width: none;
+    }
+  }
+</style>

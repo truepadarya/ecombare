@@ -1,0 +1,29 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Dropdown from "@/components/interactive/Dropdown.astro";
+import Accordion from "@/components/interactive/Accordion.astro";
+import AccordionItem from "@/components/interactive/AccordionItem.astro";
+import Button from "@/components/Button.astro";
+---
+<Layout title="Lumos motion" theme="light" noindex={true}>
+  <Section paddingTop="small" paddingBottom="small">
+    <Heading tag="h1" variant="h3">Lumos motion</Heading>
+    <Paragraph>Motion belongs to component state: opening menus, switching tabs, expanding content and browsing slides. Reduced motion is respected.</Paragraph>
+    <Dropdown label="Open menu">
+      <Paragraph>Menu content</Paragraph>
+      <Button element="link" href="/example-components">All components</Button>
+    </Dropdown>
+    <Accordion>
+      <AccordionItem heading="Component motion">
+        <Paragraph>Shared Lumos transitions remain part of their components.</Paragraph>
+      </AccordionItem>
+      <AccordionItem heading="More interactions">
+        <Paragraph>Use the interaction review for modals, sliders, fields and video playback.</Paragraph>
+      </AccordionItem>
+    </Accordion>
+    <Button element="link" href="/interaction-review">Interaction review</Button>
+  </Section>
+</Layout>

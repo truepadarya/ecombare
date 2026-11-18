@@ -1,0 +1,96 @@
+---
+import baseCss from "@/styles/base.css?raw";
+import { siteTextStyles, textStyleNames } from "@/data/text-styles";
+interface Props {
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const number = (token: string) =>
+  Number(baseCss.match(new RegExp("--" + token + ":\\s*([\\d.]+);"))?.[1]);
+const anchors = [
+  "viewport-min",
+  "viewport-medium",
+  "viewport-max",
+  "viewport-wide",
+  "viewport-extra",
+].map(number);
+const value = (style: string, width: number) => {
+  if (style.startsWith("h") && style !== "h6")
+    return number(style + "-" + width);
+  const token = style === "h6" ? "text-main" : "text-" + style;
+  const min = number(token + "-min"),
+    max = number(token + "-max");
+  const progress = Math.min(
+    1,
+    Math.max(0, (width - anchors[0]) / (anchors[2] - anchors[0])),
+  );
+  return Math.round((min + (max - min) * progress) * 100) / 100;
+};
+---
+
+{
+  render && (
+    <div class="typography-anchors_wrap">
+      <table class="typography-anchors_table text-style-small">
+        <caption>
+          Font sizes in pixels at the standard 16px rem basis. Headings use
+          stepped interpolation; paragraphs use the Lumos min/max scale.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Style</th>
+            {anchors.map((anchor) => (
+              <th
+                scope="col"
+                data-design-anchor={anchor === 1440 ? true : undefined}
+              >
+                {anchor}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {siteTextStyles.map((style) => (
+            <tr>
+              <th scope="row">{textStyleNames[style]}</th>
+              {anchors.map((anchor) => (
+                <td data-design-anchor={anchor === 1440 ? true : undefined}>
+                  {value(style, anchor)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+<style is:global>
+  @layer components {
+    .typography-anchors_wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .typography-anchors_table {
+      border-collapse: collapse;
+      width: 100%;
+      & caption {
+        text-align: start;
+        margin-bottom: var(--space-16);
+      }
+      & :is(th, td) {
+        padding: var(--space-12) var(--space-8);
+        text-align: end;
+        border-bottom: var(--border-width) solid var(--border);
+        white-space: nowrap;
+      }
+      & th:first-child {
+        text-align: start;
+        white-space: normal;
+      }
+      & [data-design-anchor] {
+        background: var(--background-2);
+      }
+    }
+  }
+</style>

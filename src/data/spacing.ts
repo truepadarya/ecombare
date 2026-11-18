@@ -1,0 +1,26 @@
+export const spacingSteps = [
+  "4",
+  "8",
+  "12",
+  "16",
+  "20",
+  "24",
+  "28",
+  "32",
+  "36",
+  "40",
+  "44",
+  "48",
+  "52",
+  "56",
+  "64",
+  "68",
+  "72",
+  "80",
+  "88",
+  "96",
+  "112",
+  "124",
+] as const;
+
+export type SpacingStep = (typeof spacingSteps)[number];

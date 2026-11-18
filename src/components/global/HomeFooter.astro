@@ -1,0 +1,203 @@
+---
+import Section from "@/components/wrapper/Section.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Video from "@/components/media/Video.astro";
+import Img from "@/components/media/Img.astro";
+import { media } from "@/data/media";
+
+const navigation = [
+  { label: "About", href: "#impact" },
+  { label: "Cases", href: "#cases" },
+  { label: "Partners", href: "#partners" },
+  { label: "Technology", href: "#technology" },
+  { label: "Team", href: "#team" },
+];
+// Confirmed through ECOmbare's own https://lnk.bio/ECOmbare directory.
+const social = [
+  { label: "Instagram", href: "https://www.instagram.com/ecombare/" },
+  { label: "Facebook", href: "https://www.facebook.com/ecombare.cy" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/ecombare" },
+];
+---
+
+<footer
+  class="eco-footer position-relative text-style-main"
+  aria-label="ECOmbare footer"
+>
+  <Section
+    paddingTop="none"
+    paddingBottom="none"
+    containerClass="max-width-full width-full"
+  >
+    <Video
+      slot="background"
+      src={media.landscapeDrawingVideo.src}
+      poster={media.landscapeDrawingPoster.src.src}
+      variant="auto"
+      playback="viewport"
+      loop={false}
+      controls={false}
+      data-video-controls="none"
+      aria-hidden="true"
+      class="width-full height-full object-fit-cover"
+      style="object-position: left bottom;"
+    />
+    <div class="eco-footer-content flex-vertical-nowrap gap-48 width-full">
+      <div class="eco-footer-top width-full" data-reveal="0">
+        <address
+          class="eco-footer-contact flex-vertical-nowrap justify-content-start gap-8 text-style-main"
+        >
+          <a href="mailto:ecombare@gmail.com">ecombare@gmail.com</a>
+          <a href="tel:+35795508998">+357 95508998</a>
+          <a href="tel:+35797778677">+357 97778677</a>
+        </address>
+        <div
+          class="eco-footer-navigation flex-horizontal-wrap align-items-start gap-72"
+        >
+          <nav aria-labelledby="footer-navigation-heading">
+            <Heading
+              tag="h2"
+              variant="h6"
+              id="footer-navigation-heading"
+              class="text-transform-uppercase margin-bottom-16"
+              >Navigation</Heading
+            >
+            <ul
+              class="eco-footer-list flex-vertical-nowrap align-items-start justify-content-start margin-block-0 padding-0"
+            >
+              {
+                navigation.map(({ label, href }) => (
+                  <li>
+                    <a class="eco-footer-link padding-block-4" href={href}>
+                      {label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+          {
+            social.length > 0 && (
+              <nav aria-labelledby="footer-social-heading">
+                <Heading
+                  tag="h2"
+                  variant="h6"
+                  id="footer-social-heading"
+                  class="text-transform-uppercase margin-bottom-16"
+                >
+                  Social
+                </Heading>
+                <ul class="eco-footer-list flex-vertical-nowrap align-items-start justify-content-start margin-block-0 padding-0">
+                  {social.map(({ label, href }) => (
+                    <li>
+                      <a class="eco-footer-link padding-block-4" href={href}>
+                        {label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )
+          }
+        </div>
+      </div>
+      <div
+        class="eco-footer-brand width-full"
+        role="img"
+        aria-label="ECOmbare"
+        data-reveal="0"
+        data-reveal-effect="fade"
+      >
+        <span class="eco-footer-symbol"
+          ><Img src={media.ecombareSymbolWhite.src} alt="" transparent /></span
+        >
+        <span class="eco-footer-wordmark"
+          ><Img
+            src={media.ecombareWordmarkWhite.src}
+            alt=""
+            transparent
+          /></span
+        >
+      </div>
+      <div
+        class="eco-footer-bottom theme-dark background-transparent flex-horizontal-wrap gap-24 text-style-main width-full"
+      >
+        <p class="margin-block-0">
+          Design and Development by <a href="https://69pixels.com/">69pixels</a>
+        </p>
+      </div>
+    </div>
+  </Section>
+</footer>
+
+<style is:global>
+  @layer components {
+    .eco-footer-content {
+      min-height: 54.25rem;
+      padding: var(--space-44) var(--site-margin) var(--space-16);
+    }
+    .eco-footer-top {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+    }
+    .eco-footer-contact {
+      order: 1;
+      font-style: normal;
+    }
+    .eco-footer-contact > a {
+      text-decoration: none;
+      color: inherit;
+    }
+    .eco-footer-navigation {
+      justify-content: space-between;
+    }
+    .eco-footer-list {
+      list-style: none;
+    }
+    .eco-footer-link {
+      display: block;
+      color: var(--text-2);
+      text-decoration: none;
+      @media (hover: hover) {
+        &:is(a):hover {
+          color: var(--text);
+          text-decoration: underline;
+        }
+      }
+    }
+    .eco-footer-brand {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: 254.446fr 1055.61fr;
+      gap: 3.67%;
+      align-items: center;
+    }
+    .eco-footer-symbol,
+    .eco-footer-wordmark {
+      min-width: 0;
+    }
+    .eco-footer-bottom {
+      justify-content: end;
+      color: var(--text);
+    }
+    @media (width >= 64rem) {
+      .eco-footer-content {
+        min-height: calc(100vw * 1080 / 1954);
+        padding: var(--space-96) var(--space-40) var(--space-40);
+      }
+      .eco-footer-top {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: var(--space-64);
+        padding-left: var(--space-40);
+      }
+      .eco-footer-contact {
+        order: 0;
+      }
+      .eco-footer-bottom {
+        flex-wrap: nowrap;
+      }
+    }
+  }
+</style>

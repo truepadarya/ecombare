@@ -1,0 +1,178 @@
+﻿---
+import baseCss from "@/styles/base.css?raw";
+import Grid from "@/components/wrapper/Grid.astro";
+import Heading from "@/components/typography/Heading.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Button from "@/components/Button.astro";
+import Input from "@/components/form/Input.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+interface Props {
+  render?: boolean;
+}
+const { render = true } = Astro.props;
+const swatches = [
+  ...baseCss.matchAll(
+    /--((?:light|gray|dark|brand|blue|purple)-\d+):\s*(#[0-9a-f]+);/gi,
+  ),
+];
+const themes = ["light", "dark", "brand"] as const;
+---
+
+{
+  render && (
+    <div class="color-review_wrap">
+      <Grid small={2} medium={5}>
+        {swatches.map(([, token, value]) => (
+          <div class="color-review_color" data-palette-color={value}>
+            <span
+              class="color-review_swatch"
+              style={`background:var(--${token})`}
+              aria-hidden="true"
+            />
+            <span class="text-style-small">
+              {token} / {value}
+            </span>
+          </div>
+        ))}
+      </Grid>
+      <p class="text-style-small">
+        Select text to compare selection colors. Tab through controls for focus.
+        Complete state comparisons are on{" "}
+        <a href="/interaction-review#control-states">the controls page</a>.
+      </p>
+      <Grid large={3}>
+        {themes.map((theme) => (
+          <article
+            class={`theme-${theme} padding-24 flex-vertical-nowrap gap-16 margin-trim`}
+          >
+            <Heading tag="h2" variant="h5">
+              {theme} theme
+            </Heading>
+            <div class="flex-vertical-nowrap gap-8">
+              <p class="text-style-main">Primary text</p>
+              <p class="text-style-main color-text-2">Secondary text</p>
+              <p class="text-style-main color-text-3">Tertiary text</p>
+              <p class="text-style-main" style="color:var(--text-accent)">
+                Readable accent text
+              </p>
+            </div>
+            <Grid xsmall={3}>
+              {(["background", "background-2", "background-3"] as const).map(
+                (role, i) => (
+                  <div
+                    class="padding-12 text-style-small"
+                    style={`background:var(--${role})`}
+                    title={role}
+                  >
+                    Surface {i + 1}
+                  </div>
+                ),
+              )}
+            </Grid>
+            <span
+              class="color-review_accent"
+              style="background:var(--accent)"
+              aria-label="Accent color"
+            />
+            <div class="flex-horizontal-wrap gap-12">
+              <span class="color-review_border text-style-small">Border</span>
+              <Eyebrow variant="tag">Sample tag</Eyebrow>
+            </div>
+            <ButtonWrapper marginTop="0">
+              <Button>Primary</Button>
+              <Button emphasis="secondary">Secondary</Button>
+              <Button variant="link">Text link</Button>
+              <Button disabled>Disabled</Button>
+            </ButtonWrapper>
+            <Input
+              label="Sample input"
+              name={`color-${theme}`}
+              placeholder="Type here"
+            />
+            <div class="theme-invert padding-16 flex-vertical-nowrap gap-12 margin-trim">
+              <Heading tag="h3" variant="h6">
+                theme-invert
+              </Heading>
+              <p class="text-style-small">
+                Nearest theme: light to dark; dark and brand to light.
+              </p>
+              <div class="flex-horizontal-wrap gap-12">
+                <Eyebrow variant="tag">Inverted tag</Eyebrow>
+                <Button>Inverted</Button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </Grid>
+      <Grid medium={2}>
+        {(["blue", "purple"] as const).map((accent) => (
+          <article
+            class={`accent-${accent} padding-24 background-2 flex-vertical-nowrap gap-12 margin-trim`}
+          >
+            <Heading tag="h2" variant="h5" class="heading-accent">
+              <strong>{accent} accent</strong>
+            </Heading>
+            <span
+              class="color-review_accent"
+              style="background:var(--accent)"
+              aria-label={`${accent} accent fill`}
+            />
+            <p class="text-style-small" style="color:var(--text-accent)">
+              Readable accent text; primary actions keep the main brand.
+            </p>
+            <div class="flex-horizontal-wrap gap-12">
+              <Eyebrow variant="tag">Popular program</Eyebrow>
+              <Button variant="link">Accent link</Button>
+              <Button>Brand action</Button>
+            </div>
+          </article>
+        ))}
+      </Grid>
+      <div class="theme-dark padding-24">
+        <article class="theme-dark background-transparent flex-vertical-nowrap gap-12 margin-trim">
+          <Heading tag="h2" variant="h5">
+            Content over media
+          </Heading>
+          <p class="text-style-small">
+            White text on a transparent surface. This preview uses a dark
+            backing.
+          </p>
+          <ButtonWrapper marginTop="0">
+            <>
+              <Button>Plant with us</Button>
+              <Button emphasis="secondary">Donate</Button>
+            </>
+          </ButtonWrapper>
+        </article>
+      </div>
+    </div>
+  )
+}
+<style is:global>
+  @layer components {
+    .color-review_wrap {
+      display: grid;
+      gap: var(--space-32);
+      width: 100%;
+      min-width: 0;
+    }
+    .color-review_color {
+      display: grid;
+      gap: var(--space-8);
+    }
+    .color-review_swatch {
+      display: block;
+      height: var(--space-48);
+      border: var(--border-width) solid var(--border);
+    }
+    .color-review_accent {
+      display: block;
+      width: 100%;
+      height: var(--space-16);
+    }
+    .color-review_border {
+      border: var(--border-width) solid var(--border);
+      padding: var(--space-8);
+    }
+  }
+</style>

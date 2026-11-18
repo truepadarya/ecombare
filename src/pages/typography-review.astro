@@ -1,0 +1,49 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import TypographyScale from "@/components/content/TypographyScale.astro";
+import TypographyAnchors from "@/components/content/TypographyAnchors.astro";
+import Underline from "@/components/typography/Underline.astro";
+import RichText from "@/components/typography/RichText.astro";
+---
+
+<Layout title="Typography" theme="light" noindex={true}>
+  <Section
+    paddingTop="small"
+    paddingBottom="small"
+    containerClass="max-width-full"
+  >
+    <Heading tag="h1" variant="h3">Typography</Heading>
+    <Paragraph
+      >Helvetica Neue. Bold headings and medium paragraphs. Exact Figma sizes at
+      1440. Headings use stepped sizing; paragraphs use the Lumos min/max scale.</Paragraph
+    >
+    <TypographyAnchors />
+    <TypographyScale />
+  </Section>
+  <Section id="underline" paddingTop="small" paddingBottom="small">
+    <Heading tag="h2" variant="h3">Animated underline</Heading>
+    <Paragraph
+      >Original Figma stroke. One drawing on entry, natural wrapping on every
+      screen. Static with reduced motion.</Paragraph
+    >
+    <Heading
+      tag="h3"
+      variant="h4"
+      maxWidth={35}
+      class="alignment-center align-self-center"
+    >
+      <Underline>Six real environmental programs</Underline> — for companies and individuals.
+      Each one designed to get people outside, create measurable impact.
+    </Heading>
+    <RichText variant="main"
+      ><p>
+        <Underline animate={false}
+          >A static underline follows the same rules when this sentence wraps
+          onto several lines.</Underline>
+      </p></RichText
+    >
+  </Section>
+</Layout>

@@ -1,0 +1,177 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { slotContent } from "@/utils/slots.ts";
+
+interface Props extends HTMLAttributes<"form"> {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Form name. */
+  name?: string;
+  /** Form endpoint. Without one, submission fails without clearing entered data. */
+  action?: string;
+  /** Message shown after submission. */
+  successMessage?: string;
+  /** Message shown after an error. */
+  errorMessage?: string;
+}
+
+const {
+  render = true,
+  name,
+  action,
+  successMessage = "Thanks — we will be in touch.",
+  errorMessage = "That did not send. Please try again.",
+  method = "post",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const content = await slotContent(Astro.slots);
+---
+
+{
+  render && name && content && (
+    <div class:list={["form_wrap", className]} data-state="idle">
+      <form
+        class="form_fields"
+        name={name}
+        action={action}
+        method={method}
+        {...rest}
+      >
+        <Fragment set:html={content} />
+      </form>
+
+      <p class="form_note form_note-sent text-style-main" role="status">
+        {successMessage}
+      </p>
+      <p class="form_note form_note-failed text-style-main" role="alert">
+        {errorMessage}
+      </p>
+    </div>
+  )
+}
+
+<script>
+  import { setupContactValidation } from "@/utils/contact-validation";
+  for (const form of document.querySelectorAll<HTMLElement>(".form_wrap")) {
+    const fields = form.querySelector<HTMLFormElement>(".form_fields");
+    if (!fields) continue;
+    if (fields.hasAttribute("data-contact-validation"))
+      setupContactValidation(fields);
+
+    fields.addEventListener("submit", async (event) => {
+      const submitter =
+        event.submitter instanceof HTMLButtonElement ||
+        event.submitter instanceof HTMLInputElement
+          ? event.submitter
+          : null;
+      const method = (
+        submitter?.hasAttribute("formmethod")
+          ? submitter.formMethod
+          : fields.method
+      ).toUpperCase();
+      if (method === "DIALOG") return;
+      event.preventDefault();
+      if (
+        form.dataset.state === "sending" ||
+        (!(fields.noValidate || submitter?.formNoValidate) &&
+          !fields.reportValidity())
+      )
+        return;
+
+      const buttons = [...fields.elements].filter(
+        (element): element is HTMLButtonElement | HTMLInputElement =>
+          (element instanceof HTMLButtonElement ||
+            element instanceof HTMLInputElement) &&
+          (element.type === "submit" || element.type === "image"),
+      );
+      const disabled = buttons.map((button) => button.disabled);
+      form.dataset.state = "sending";
+      fields.setAttribute("aria-busy", "true");
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const endpoint = submitter?.hasAttribute("formaction")
+          ? submitter.getAttribute("formaction")
+          : fields.getAttribute("action");
+        if (!endpoint?.trim()) throw new Error("Form action is required");
+        const url = new URL(endpoint, document.baseURI);
+        const data = new FormData(fields, submitter);
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+        if (method === "GET") {
+          for (const [key, value] of data)
+            url.searchParams.append(
+              key,
+              typeof value === "string" ? value : value.name,
+            );
+        }
+        const answer = await fetch(url, {
+          method,
+          ...(method === "GET" ? {} : { body: data }),
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+        if (!answer.ok) throw new Error(String(answer.status));
+        form.dataset.state = "sent";
+        fields.reset();
+      } catch {
+        form.dataset.state = "failed";
+      } finally {
+        window.clearTimeout(timeout);
+        fields.removeAttribute("aria-busy");
+        buttons.forEach((button, index) => {
+          button.disabled = disabled[index];
+        });
+      }
+    });
+    // Opt-in controls remain disabled without JavaScript. Enable them only
+    // after the submission handler is installed, preventing a native POST
+    // to the current page when delivery has not been configured yet.
+    for (const button of fields.querySelectorAll<HTMLButtonElement>(
+      "button[data-enable-with-js]",
+    ))
+      button.disabled = false;
+  }
+</script>
+
+<style is:global>
+  @layer components {
+    .form_wrap {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-24);
+      width: 100%;
+    }
+
+    .form_fields {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+    }
+
+    .form_note {
+      display: none;
+      padding: var(--space-24) var(--space-32);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-small);
+    }
+
+    .form_wrap[data-state="sent"] {
+      & .form_fields {
+        display: none;
+      }
+      & .form_note-sent {
+        display: block;
+      }
+    }
+
+    .form_wrap[data-state="failed"] .form_note-failed {
+      display: block;
+      color: var(--error);
+    }
+  }
+</style>

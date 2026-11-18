@@ -1,0 +1,17 @@
+---
+interface Props {
+  id?: string;
+}
+const { id } = Astro.props;
+---
+
+{id && <span id={id} class="field-error text-style-small" hidden />}
+<style is:global>
+  @layer components {
+    .field-error {
+      color: var(--error);
+      text-align: start;
+      overflow-wrap: anywhere;
+    }
+  }
+</style>

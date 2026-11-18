@@ -1,0 +1,347 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/wrapper/Section.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/wrapper/ButtonWrapper.astro";
+import Video from "@/components/media/Video.astro";
+import Slider from "@/components/interactive/Slider.astro";
+import Modal from "@/components/interactive/Modal.astro";
+import Input from "@/components/form/Input.astro";
+import Textarea from "@/components/form/Textarea.astro";
+import Select from "@/components/form/Select.astro";
+import Choice from "@/components/form/Choice.astro";
+import Range from "@/components/form/Range.astro";
+import Fieldset from "@/components/form/Fieldset.astro";
+import { media } from "@/data/media";
+const states = ["Normal", "Disabled", "Invalid"] as const;
+const scenarios = [
+  [
+    "viewport",
+    "В зоне видимости · продолжение",
+    "На выходе — пауза. При возвращении — продолжение с того же момента.",
+  ],
+  [
+    "viewport-restart",
+    "В зоне видимости · сначала",
+    "При каждом повторном входе начинается с нуля.",
+  ],
+  [
+    "continuous",
+    "Непрерывный loop",
+    "Играет независимо от прокрутки. В скрытой вкладке — пауза.",
+  ],
+  [
+    "manual",
+    "Ручной запуск",
+    "Только по нажатию. Подходит для содержательных роликов и видео со звуком.",
+  ],
+] as const;
+---
+
+<Layout
+  title="Видео и взаимодействие · система Lumos"
+  noindex={true}
+  theme="light"
+>
+  <Section paddingTop="small" paddingBottom="small" gap="32">
+    <ContentWrapper>
+      <Heading tag="h1" variant="h3" class="weight-medium"
+        >Видео и взаимодействие</Heading
+      >
+      <Paragraph
+        >Рабочие сценарии Video, галерея, модальные окна и поля. Отправка форм
+        здесь не подключена.</Paragraph
+      >
+    </ContentWrapper>
+    <ButtonWrapper marginTop="0"
+      ><Button element="link" href="#control-states" emphasis="secondary"
+        >Control states</Button
+      ><Button
+        element="link"
+        href="/spacing-review#geometry-title"
+        emphasis="secondary">Geometry</Button
+      ><Button element="link" href="/color-review" emphasis="secondary"
+        >Colors</Button
+      ></ButtonWrapper
+    >
+  </Section>
+  <Section
+    id="video-scenarios"
+    paddingTop="none"
+    paddingBottom="small"
+    gap="32"
+  >
+    <Heading tag="h2" variant="h4">Сценарии воспроизведения</Heading>
+    <Grid medium={2}>
+      {
+        scenarios.map(([playback, title, description]) => (
+          <article class="flex-vertical-nowrap gap-16">
+            <Heading tag="h3" variant="h5">
+              {title}
+            </Heading>
+            <Paragraph variant="small">{description}</Paragraph>
+            <Video
+              id={`video-${playback}`}
+              src={media.placeholderVideo.src}
+              poster={media.placeholderVideoPoster.src.src}
+              playback={playback}
+              controls
+            />
+          </article>
+        ))
+      }
+    </Grid>
+    <Paragraph variant="small"
+      >Loop задаётся отдельно: loop=false останавливает ролик в конце. При
+      reduced motion автоматический запуск отключается, остаются ручные
+      controls. muted=false всегда означает ручной запуск. Режимы показаны на
+      одном беззвучном примере; видео со звуком будет подключено отдельно.</Paragraph
+    >
+    <Video
+      id="video-once"
+      src={media.placeholderVideo.src}
+      poster={media.placeholderVideoPoster.src.src}
+      playback="viewport"
+      loop={false}
+    />
+  </Section>
+  <Section id="gallery-review" paddingTop="none" paddingBottom="small" gap="32">
+    <Heading tag="h2" variant="h4">Галерея · клавиатура и touch</Heading>
+    <Paragraph
+      >На дорожке: ← / →, Home / End. Кнопки и маркеры работают с клавиатуры. На
+      сенсорном экране — обычное горизонтальное пролистывание.</Paragraph
+    >
+    <Slider
+      id="review-slider"
+      variant="contained"
+      xsmall={1}
+      medium={2}
+      large={3}
+      label="Interaction review slides"
+    >
+      {
+        Array.from({ length: 6 }, (_, i) => (
+          <article class="padding-32 background-2 flex-vertical-nowrap gap-24">
+            <h3 class="text-style-h4">Project {i + 1}</h3>
+            <p>
+              Описание слайда. Элементы внутри остаются доступны для клавиатуры
+              и не перехватывают управление всей галереей.
+            </p>
+            <Button data-modal-open="review-modal">Open details</Button>
+          </article>
+        ))
+      }
+    </Slider>
+    <div class="flex-horizontal-wrap gap-12">
+      <Button id="open-review-modal" data-modal-open="review-modal"
+        >Длинное окно</Button
+      >
+      <Button id="open-review-panel" data-modal-open="review-panel"
+        >Боковая панель</Button
+      >
+      <Button id="open-review-screen" data-modal-open="review-screen"
+        >Полный экран</Button
+      >
+    </div>
+  </Section>
+  <Section id="control-states" paddingTop="none" paddingBottom="small" gap="24">
+    <Heading tag="h2" variant="h4">Control states</Heading>
+    <Paragraph variant="small"
+      >Compare each control in normal, disabled and invalid states. Use Tab for
+      keyboard focus and press a control to inspect its active state.</Paragraph
+    >
+    {
+      (["light", "dark", "brand"] as const).map((theme) => (
+        <form
+          id={`fields-${theme}`}
+          class={`theme-${theme} padding-24 flex-vertical-nowrap gap-24 width-full`}
+        >
+          <Heading tag="h3" variant="h5">
+            {theme} theme
+          </Heading>
+          <Fieldset legend="Input" legendStyle="label">
+            <Grid medium={3}>
+              {states.map((state) => (
+                <Input
+                  label={state}
+                  name={
+                    state === "Normal"
+                      ? `contact-${theme}`
+                      : `${state.toLowerCase()}-contact-${theme}`
+                  }
+                  variant="email"
+                  placeholder="you@example.com"
+                  value={state === "Invalid" ? "invalid" : undefined}
+                  required={state === "Normal"}
+                  disabled={state === "Disabled"}
+                  aria-invalid={state === "Invalid" ? "true" : undefined}
+                  aria-describedby={
+                    state === "Invalid" ? `field-error-${theme}` : undefined
+                  }
+                />
+              ))}
+            </Grid>
+          </Fieldset>
+          <Fieldset legend="Select" legendStyle="label">
+            <Grid medium={3}>
+              {states.map((state) => (
+                <Select
+                  label={state}
+                  name={
+                    state === "Normal"
+                      ? `project-${theme}`
+                      : `${state.toLowerCase()}-project-${theme}`
+                  }
+                  options={[
+                    "Brand identity",
+                    "Digital experience",
+                    "Visual production",
+                  ]}
+                  disabled={state === "Disabled"}
+                  aria-invalid={state === "Invalid" ? "true" : undefined}
+                  aria-describedby={
+                    state === "Invalid" ? `field-error-${theme}` : undefined
+                  }
+                />
+              ))}
+            </Grid>
+          </Fieldset>
+          <Fieldset legend="Textarea" legendStyle="label">
+            <Grid medium={3}>
+              {states.map((state) => (
+                <Textarea
+                  label={state}
+                  name={
+                    state === "Normal"
+                      ? `details-${theme}`
+                      : `${state.toLowerCase()}-details-${theme}`
+                  }
+                  placeholder="Describe your project"
+                  disabled={state === "Disabled"}
+                  aria-invalid={state === "Invalid" ? "true" : undefined}
+                  aria-describedby={
+                    state === "Invalid" ? `field-error-${theme}` : undefined
+                  }
+                />
+              ))}
+            </Grid>
+          </Fieldset>
+          <Fieldset legend="Range" legendStyle="label">
+            <Grid medium={3}>
+              {states.map((state) => (
+                <Range
+                  label={state}
+                  name={
+                    state === "Normal"
+                      ? `budget-${theme}`
+                      : `${state.toLowerCase()}-budget-${theme}`
+                  }
+                  min={0}
+                  max={100}
+                  unit="%"
+                  disabled={state === "Disabled"}
+                  aria-invalid={state === "Invalid" ? "true" : undefined}
+                  aria-describedby={
+                    state === "Invalid" ? `field-error-${theme}` : undefined
+                  }
+                />
+              ))}
+            </Grid>
+          </Fieldset>
+          <Fieldset legend="Checkbox" legendStyle="label">
+            <Grid medium={3}>
+              {states.map((state) => (
+                <Choice
+                  label={state}
+                  name={
+                    state === "Normal"
+                      ? `research-${theme}`
+                      : `${state.toLowerCase()}-choice-${theme}`
+                  }
+                  disabled={state === "Disabled"}
+                  aria-invalid={state === "Invalid" ? "true" : undefined}
+                  aria-describedby={
+                    state === "Invalid" ? `field-error-${theme}` : undefined
+                  }
+                />
+              ))}
+            </Grid>
+          </Fieldset>
+          <Grid medium={3}>
+            <Fieldset legend="Toggle" legendStyle="label">
+              <Choice
+                label="Enable updates"
+                name={`updates-${theme}`}
+                variant="toggle"
+              />
+            </Fieldset>
+            <Fieldset legend="Chip" legendStyle="label">
+              <Choice
+                label="Selected option"
+                name={`chip-${theme}`}
+                variant="chip"
+                checked
+              />
+            </Fieldset>
+            <Fieldset legend="Radio" legendStyle="label" variant="inline">
+              <>
+                <Choice
+                  type="radio"
+                  name={`format-${theme}`}
+                  label="Fixed project"
+                  value="fixed"
+                  checked
+                />
+                <Choice
+                  type="radio"
+                  name={`format-${theme}`}
+                  label="Partnership"
+                  value="partnership"
+                />
+              </>
+            </Fieldset>
+          </Grid>
+          <p
+            class="text-style-small"
+            id={`field-error-${theme}`}
+            style="color:var(--error)"
+          >
+            Example error: check the value before continuing.
+          </p>
+          <ButtonWrapper marginTop="0">
+            <Button type="reset" emphasis="secondary">
+              Reset fields
+            </Button>
+          </ButtonWrapper>
+        </form>
+      ))
+    }
+  </Section>
+  {
+    (
+      [
+        ["review-modal", "small"],
+        ["review-panel", "side-panel"],
+        ["review-screen", "full-screen"],
+      ] as const
+    ).map(([id, variant]) => (
+      <Modal id={id} variant={variant} label="Project details">
+        <Heading tag="h2" variant="h4">
+          Project details
+        </Heading>
+        <Input label="Contact email" variant="email" name={`email-${id}`} />
+        {Array.from({ length: 120 }, (_, i) => (
+          <p class="text-style-main">
+            {i + 1}. Длинный контент прокручивается внутри окна. Escape и кнопка
+            закрытия возвращают фокус на элемент, открывший окно.
+          </p>
+        ))}
+        <Button data-modal-close>Close details</Button>
+      </Modal>
+    ))
+  }
+</Layout>

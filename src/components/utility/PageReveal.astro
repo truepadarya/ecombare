@@ -1,0 +1,249 @@
+<!-- Opt-in entrance motion. Include once in the page's head slot. -->
+<script is:inline>
+  if (
+    !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    !matchMedia("(forced-colors: active)").matches
+  ) {
+    document.documentElement.dataset.pageReveal = "pending";
+    // Fail open if the module cannot load. Content never depends on JavaScript.
+    window.setTimeout(() => {
+      if (document.documentElement.dataset.pageReveal === "pending")
+        delete document.documentElement.dataset.pageReveal;
+    }, 2500);
+  }
+</script>
+
+<style is:global>
+  @layer utilities {
+    html[data-page-reveal] [data-reveal]:not([data-revealed]) {
+      opacity: 0;
+    }
+    @media (prefers-reduced-motion: reduce), (forced-colors: active), print {
+      html[data-page-reveal] [data-reveal] {
+        opacity: 1;
+      }
+    }
+  }
+</style>
+
+<script>
+  const init = () => {
+    const html = document.documentElement;
+    const targets = [
+      ...document.querySelectorAll<HTMLElement>("[data-reveal]"),
+    ];
+    if (!targets.length || html.dataset.pageReveal !== "pending") return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const forced = matchMedia("(forced-colors: active)");
+    if (reduced.matches || forced.matches) {
+      delete html.dataset.pageReveal;
+      return;
+    }
+    const running = new Map<HTMLElement, Animation>();
+    const finished = new WeakSet<HTMLElement>();
+    const controller = new AbortController();
+    const { signal } = controller;
+    const styles = getComputedStyle(html);
+    const baseDuration =
+      parseFloat(styles.getPropertyValue("--hover-duration")) || 200;
+    const distance = styles.getPropertyValue("--space-16").trim();
+    html.dataset.pageReveal = "ready";
+    let frame = 0;
+    let enabled = true;
+    const order = (target: HTMLElement) =>
+      Math.max(0, Math.min(4, Number(target.dataset.reveal) || 0));
+    const timed = targets.filter((target) =>
+      target.closest("[data-reveal-timing]"),
+    );
+    const scrolled = targets.filter(
+      (target) => !target.closest("[data-reveal-timing]"),
+    );
+    const groups = new Map<HTMLElement, HTMLElement>();
+    for (const target of scrolled) {
+      const group = target.closest<HTMLElement>("[data-reveal-group]");
+      if (
+        group &&
+        (!groups.has(group) || order(target) < order(groups.get(group)!))
+      )
+        groups.set(group, target);
+    }
+    const create = (target: HTMLElement, timeDriven = false) => {
+      const fade = target.dataset.revealEffect === "fade";
+      const animation = target.animate(
+        [
+          {
+            opacity: 0,
+            ...(fade ? {} : { transform: `translateY(${distance})` }),
+          },
+          { opacity: 1, ...(fade ? {} : { transform: "none" }) },
+        ],
+        {
+          // Scroll animations are paused; currentTime is a normalized progress.
+          duration: timeDriven ? baseDuration * 3.5 : 1000,
+          delay: timeDriven ? order(target) * baseDuration * 0.6 : 0,
+          easing: timeDriven
+            ? "cubic-bezier(0.22, 1, 0.36, 1)"
+            : "cubic-bezier(0.42, 0, 0.58, 1)",
+          fill: "both",
+        },
+      );
+      if (!timeDriven) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+      running.set(target, animation);
+      target.dataset.revealed = "";
+      return animation;
+    };
+
+    const finish = (target: HTMLElement) => {
+      finished.add(target);
+      target.dataset.revealed = "";
+      running.get(target)?.cancel();
+      running.delete(target);
+      observer.unobserve(target);
+      target
+        .querySelectorAll<HTMLElement>("[data-underline][data-progress]")
+        .forEach((stroke) => {
+          stroke.dataset.progress = "1";
+        });
+    };
+    const reveal = (target: HTMLElement, instant = false) => {
+      if (!enabled) return;
+      if (target.hasAttribute("data-revealed")) return;
+      observer.unobserve(target);
+      target.dataset.revealed = "";
+      if (instant || reduced.matches || forced.matches) return;
+      const animation = create(target, true);
+      void animation.finished.then(
+        () => finish(target),
+        () => {},
+      );
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) reveal(entry.target as HTMLElement);
+          else if (entry.boundingClientRect.bottom < 0)
+            reveal(entry.target as HTMLElement, true);
+        }
+      },
+      {
+        rootMargin: `0px 0px -${Math.min(80, innerHeight * 0.08)}px 0px`,
+        threshold: 0,
+      },
+    );
+    timed.forEach((target) => observer.observe(target));
+
+    const draw = () => {
+      frame = 0;
+      if (!enabled) return;
+      // Read all geometry first. Subtract this utility's own animated translation
+      // so the reveal never feeds back into its scroll measurements.
+      const tops = new Map<HTMLElement, number>();
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - innerHeight,
+      );
+      const progressAt = (top: number, offset = 0, span = 0.3) => {
+        const end = Math.min(
+          maxScroll,
+          scrollY + top - innerHeight * (0.9 - span) + offset,
+        );
+        const start = Math.min(end, scrollY + top - innerHeight * 0.9 + offset);
+        return scrollY >= end
+          ? 1
+          : (scrollY - start) / Math.max(1, end - start);
+      };
+      for (const target of scrolled) {
+        let y = 0;
+        if (running.has(target) && target.dataset.revealEffect !== "fade") {
+          const transform = getComputedStyle(target).transform;
+          if (transform !== "none") y = new DOMMatrixReadOnly(transform).m42;
+        }
+        tops.set(target, target.getBoundingClientRect().top - y);
+      }
+      for (const target of scrolled) {
+        if (finished.has(target)) continue;
+        const group = target.closest<HTMLElement>("[data-reveal-group]");
+        const anchor = group ? groups.get(group)! : target;
+        const span = target.dataset.revealPace === "slow" ? 0.6 : 0.3;
+        const own = progressAt(tops.get(target)!, 0, span);
+        const sequence = progressAt(
+          tops.get(anchor)!,
+          group ? order(target) * innerHeight * 0.1 : 0,
+          span,
+        );
+        const progress = Math.max(0, Math.min(1, own, sequence));
+        target
+          .querySelectorAll<HTMLElement>("[data-underline][data-progress]")
+          .forEach((stroke) => {
+            stroke.dataset.progress = String(progress);
+          });
+        if (progress === 0 || progress === 1) {
+          // Remove filled transforms at rest; they must not create containing blocks.
+          if (progress === 1) target.dataset.revealed = "";
+          else target.removeAttribute("data-revealed");
+          running.get(target)?.cancel();
+          running.delete(target);
+        } else {
+          const animation = running.get(target) ?? create(target);
+          animation.currentTime = progress * 1000;
+        }
+      }
+    };
+    const schedule = () => {
+      if (enabled && !frame) frame = requestAnimationFrame(draw);
+    };
+    window.addEventListener("scroll", schedule, { passive: true, signal });
+    window.addEventListener("resize", schedule, { passive: true, signal });
+    const resize = new ResizeObserver(schedule);
+    targets.forEach((target) => resize.observe(target));
+    void document.fonts.ready.then(schedule);
+    draw();
+
+    // Keyboard navigation and anchor jumps must never wait for decorative motion.
+    document.addEventListener(
+      "focusin",
+      (event) => {
+        if (!(event.target instanceof Element)) return;
+        for (const target of targets)
+          if (target.contains(event.target)) finish(target);
+      },
+      { signal },
+    );
+    const showAll = () => {
+      enabled = false;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      resize.disconnect();
+      targets.forEach(finish);
+      delete html.dataset.pageReveal;
+    };
+    const preferenceChange = () => {
+      if (reduced.matches || forced.matches) showAll();
+    };
+    reduced.addEventListener("change", preferenceChange, { signal });
+    forced.addEventListener("change", preferenceChange, { signal });
+    window.addEventListener("beforeprint", showAll, { signal });
+    window.addEventListener(
+      "pageshow",
+      (event) => {
+        if (event.persisted) showAll();
+      },
+      { signal },
+    );
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        showAll();
+        observer.disconnect();
+        resize.disconnect();
+        controller.abort();
+      },
+      { once: true, signal },
+    );
+  };
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

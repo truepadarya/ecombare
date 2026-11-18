@@ -1,0 +1,395 @@
+﻿---
+import Section from "@/components/wrapper/Section.astro";
+import Img from "@/components/media/Img.astro";
+import Logo from "@/components/media/Logo.astro";
+import { media } from "@/data/media";
+import CasePopups from "@/components/content/CasePopups.astro";
+import { caseDetails, caseModalId, casePopupByPlaque } from "@/data/cases";
+import brainrocketMask from "@/assets/graphics/case-masks/brainrocket.svg?raw";
+import dashinMask from "@/assets/graphics/case-masks/dashin.svg?raw";
+import playrixMask from "@/assets/graphics/case-masks/playrix.svg?raw";
+import communityMask from "@/assets/graphics/case-masks/community.svg?raw";
+
+type CasePlaque = {
+  id: keyof typeof casePopupByPlaque;
+  photo: ImageMetadata;
+  mask: string;
+  logo?: ImageMetadata | string;
+};
+
+const cases = [
+  {
+    id: "brainrocket",
+    photo: media.caseBrainrocketPhoto.src,
+    mask: brainrocketMask,
+    logo: media.brainrocketWhiteLogo.src,
+  },
+  {
+    id: "dashin",
+    photo: media.caseDashinPhoto.src,
+    mask: dashinMask,
+  },
+  {
+    id: "playrix",
+    photo: media.casePlayrixPhoto.src,
+    mask: playrixMask,
+    logo: media.playrixWhiteLogo.src,
+  },
+  {
+    id: "community",
+    photo: media.caseCommunityPhoto.src,
+    mask: communityMask,
+  },
+] satisfies CasePlaque[];
+---
+
+<div class="case-gallery theme-light width-full" data-case-gallery>
+  <div
+    class="case-gallery-edge case-gallery-edge-top pointer-off"
+    aria-hidden="true"
+  >
+  </div>
+  <Section
+    id="cases"
+    theme="brand"
+    paddingTop="none"
+    paddingBottom="none"
+    containerClass="max-width-full width-full"
+    aria-label="Selected eco projects"
+  >
+    <div class="case-scene position-relative width-full" data-case-scene>
+      {
+        cases.map((item) => {
+          const bounds = item.mask
+            .match(/viewBox="([^"]+)"/)?.[1]
+            .split(/\s+/)
+            .map(Number);
+          const artwork = item.mask.match(/<svg\b[^>]*>([\s\S]*)<\/svg>/)?.[1];
+          if (!bounds || !artwork)
+            throw new Error(`Invalid case mask: ${item.id}`);
+          const [left, top, width, height] = bounds;
+          const clip = `case-${item.id}-clip`;
+          return (
+            <button
+              type="button"
+              class="case-blob position-absolute pointer-off"
+              data-case={item.id}
+              data-reveal="0"
+              data-reveal-effect="fade"
+              data-modal-open={caseModalId(casePopupByPlaque[item.id])}
+              aria-controls={caseModalId(casePopupByPlaque[item.id])}
+              aria-haspopup="dialog"
+              aria-label={`View ${caseDetails[casePopupByPlaque[item.id]].title}`}
+            >
+              <svg
+                width="0"
+                height="0"
+                class="position-absolute pointer-off"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <defs>
+                  <clipPath
+                    id={clip}
+                    clipPathUnits="objectBoundingBox"
+                    transform={`scale(${1 / width} ${1 / height}) translate(${-left} ${-top})`}
+                  >
+                    <Fragment set:html={artwork} />
+                  </clipPath>
+                </defs>
+              </svg>
+              <span
+                class="case-blob-surface cover-absolute pointer-on"
+                style={`clip-path: url(#${clip});`}
+                data-case-surface
+              >
+                <Img
+                  src={item.photo}
+                  alt=""
+                  quality="high"
+                  variant="constrained"
+                  sizes="(min-width: 48rem) 55vw, 90vw"
+                  draggable={false}
+                  class="cover object-fit-cover pointer-off"
+                />
+              </span>
+              <span
+                class:list={[
+                  "case-blob-brand position-absolute pointer-off",
+                  item.id === "dashin" && "theme-light",
+                ]}
+                aria-hidden="true"
+              >
+                {item.id === "dashin" ? (
+                  <Logo logo="dashinFoundation" decorative />
+                ) : item.logo ? (
+                  <Img
+                    src={item.logo}
+                    alt=""
+                    transparent
+                    class="cover object-fit-contain"
+                  />
+                ) : (
+                  <Img
+                    src={media.caseCommunityMark.src}
+                    alt=""
+                    transparent
+                    class="cover object-fit-contain"
+                  />
+                )}
+              </span>
+            </button>
+          );
+        })
+      }
+    </div>
+  </Section>
+  <div
+    class="case-gallery-edge case-gallery-edge-bottom pointer-off"
+    aria-hidden="true"
+  >
+  </div>
+</div>
+
+<CasePopups />
+
+<style is:global>
+  @layer components {
+    .case-gallery {
+      overflow: clip;
+    }
+    .case-gallery-edge {
+      height: clamp(5rem, 15.278vw, 24rem);
+      background: linear-gradient(
+        to bottom,
+        var(--background) 16.827%,
+        var(--accent)
+      );
+    }
+    .case-gallery-edge-bottom {
+      rotate: 180deg;
+    }
+    .case-scene {
+      aspect-ratio: 375 / 785;
+    }
+    .case-blob {
+      --_x: 0px;
+      --_y: 0px;
+      --_scale: 1;
+      --_angle: 0deg;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      transform: translate(var(--_x), var(--_y)) scale(var(--_scale));
+      transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      &:focus-visible {
+        outline: none;
+        filter: drop-shadow(0 0 var(--focus-width) var(--focus-color));
+      }
+      @media (forced-colors: active) {
+        &:focus-visible {
+          outline: var(--focus-width) solid Highlight;
+        }
+      }
+    }
+    .case-blob-surface {
+      rotate: var(--_angle);
+      cursor: pointer;
+    }
+    .case-blob-brand {
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .case-blob[data-case="brainrocket"] {
+      left: -6.4%;
+      top: 4.368%;
+      width: 73.265%;
+      aspect-ratio: 723.249 / 780.999;
+      & .case-blob-brand {
+        width: 49.137%;
+        height: 6.741%;
+      }
+    }
+    .case-blob[data-case="dashin"] {
+      --_angle: 4.72deg;
+      left: 48.476%;
+      top: 30.808%;
+      width: 64.14%;
+      aspect-ratio: 605.972 / 502.177;
+      & .case-blob-brand {
+        top: 43%;
+        width: 33%;
+        height: 14.55%;
+        filter: none;
+        background-color: var(--background);
+      }
+    }
+    .case-blob[data-case="playrix"] {
+      left: -13.067%;
+      top: 44.241%;
+      width: 89.006%;
+      aspect-ratio: 795.386 / 633.887;
+      & .case-blob-brand {
+        width: 35.727%;
+        height: 14.082%;
+      }
+    }
+    .case-blob[data-case="community"] {
+      --_angle: -6deg;
+      left: 46.225%;
+      top: 69.936%;
+      width: 62.998%;
+      aspect-ratio: 440.543 / 428.117;
+      & .case-blob-brand {
+        display: none;
+        width: 23.05%;
+        height: 28.03%;
+        filter: brightness(0) invert(1);
+      }
+    }
+    .case-scene[data-keyboard] .case-blob {
+      transition-duration: 0s;
+    }
+    @media (width >= 48rem) {
+      .case-scene {
+        aspect-ratio: 1440 / 1297;
+      }
+      .case-blob[data-case="brainrocket"] {
+        left: -2.91%;
+        top: 8.784%;
+        width: 50.226%;
+        & .case-blob-brand {
+          width: 45.755%;
+          height: 6.241%;
+        }
+      }
+      .case-blob[data-case="dashin"] {
+        left: 46.832%;
+        top: 10.356%;
+        width: 42.081%;
+      }
+      .case-blob[data-case="playrix"] {
+        left: 26.607%;
+        top: 48.12%;
+        width: 55.235%;
+      }
+      .case-blob[data-case="community"] {
+        left: 75.011%;
+        top: 33.526%;
+        width: 30.593%;
+        & .case-blob-brand {
+          display: flex;
+        }
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .case-blob {
+        transition: none;
+      }
+    }
+  }
+</style>
+
+<script>
+  for (const scene of document.querySelectorAll<HTMLElement>(
+    "[data-case-scene]",
+  )) {
+    const blobs = [...scene.querySelectorAll<HTMLButtonElement>("[data-case]")];
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const hover = matchMedia("(hover: hover) and (pointer: fine)");
+    const controller = new AbortController();
+    const { signal } = controller;
+    let active = -1;
+    let keyboard = false;
+    const render = () => {
+      // Offset geometry excludes current transforms: interrupted transitions
+      // always retarget from the same composition, without cumulative drift.
+      const boxes = blobs.map((node) => ({
+        x: node.offsetLeft + node.offsetWidth / 2,
+        y: node.offsetTop + node.offsetHeight / 2,
+        width: node.offsetWidth,
+        height: node.offsetHeight,
+      }));
+      const selected = active >= 0 && !reduced.matches ? boxes[active] : null;
+      scene.toggleAttribute("data-keyboard", keyboard);
+      blobs.forEach((node, index) => {
+        let x = 0,
+          y = 0;
+        if (selected && index !== active) {
+          const box = boxes[index],
+            dx = box.x - selected.x,
+            dy = box.y - selected.y;
+          const distance = Math.hypot(dx, dy) || 1;
+          const normalized = Math.hypot(
+            dx / ((box.width + selected.width) * 0.45),
+            dy / ((box.height + selected.height) * 0.45),
+          );
+          const influence = Math.min(1, Math.max(0, (1.8 - normalized) / 0.8));
+          const push =
+            Math.min(selected.width, selected.height) * 0.07 * influence;
+          x = (dx / distance) * push;
+          y = (dy / distance) * push;
+        }
+        node.style.setProperty("--_x", `${x}px`);
+        node.style.setProperty("--_y", `${y}px`);
+        node.style.setProperty(
+          "--_scale",
+          selected && index === active ? "1.08" : "1",
+        );
+        node.style.zIndex = index === active ? "1" : "0";
+      });
+    };
+    const select = (index: number, fromKeyboard = false) => {
+      active = index;
+      keyboard = fromKeyboard;
+      render();
+    };
+    blobs.forEach((node, index) => {
+      const surface = node.querySelector<HTMLElement>("[data-case-surface]")!;
+      surface.addEventListener(
+        "pointerenter",
+        (event) => {
+          if (event.pointerType === "mouse" && hover.matches) select(index);
+        },
+        { signal },
+      );
+      surface.addEventListener(
+        "pointerleave",
+        () => {
+          if (active === index && !keyboard) select(-1);
+        },
+        { signal },
+      );
+      node.addEventListener(
+        "focus",
+        () => {
+          if (node.matches(":focus-visible")) select(index, true);
+        },
+        { signal },
+      );
+      node.addEventListener(
+        "blur",
+        () => {
+          if (active === index && keyboard) select(-1, true);
+        },
+        { signal },
+      );
+    });
+    reduced.addEventListener("change", render, { signal });
+    hover.addEventListener("change", () => select(-1), { signal });
+    const resize = new ResizeObserver(render);
+    resize.observe(scene);
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        resize.disconnect();
+      },
+      { once: true },
+    );
+  }
+</script>

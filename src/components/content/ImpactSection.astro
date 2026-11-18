@@ -1,0 +1,367 @@
+---
+import Section from "@/components/wrapper/Section.astro";
+import ContentWrapper from "@/components/wrapper/ContentWrapper.astro";
+import Heading from "@/components/typography/Heading.astro";
+import Paragraph from "@/components/typography/Paragraph.astro";
+import Underline from "@/components/typography/Underline.astro";
+import Img from "@/components/media/Img.astro";
+import { impactStatistics, missionParts } from "@/data/impact";
+import { media } from "@/data/media";
+---
+
+<div class="impact-scroll position-relative width-full" data-impact-scroll>
+  <div class="impact-stage background-1">
+    <Section
+      id="impact"
+      fullHeight
+      containerClass="max-width-full width-full"
+      aria-labelledby="mission-heading"
+    >
+      <div slot="background" class="pointer-off" aria-hidden="true">
+        <div class="impact-pattern height-full margin-inline-auto">
+          <Img
+            src={media.treeRingsFingerprint.src}
+            alt=""
+            quality="max"
+            transparent
+            class="width-full height-full object-fit-contain"
+          />
+        </div>
+      </div>
+      <div class="impact-frames flex-vertical-nowrap width-full">
+        <div
+          class="impact-viewport width-full"
+          data-impact-viewport
+          role="region"
+          aria-label="Our impact in numbers"
+          tabindex="0"
+        >
+          <div class="impact-rail grid-autofit gap-row-32" data-impact-rail>
+            {
+              impactStatistics.map((statistic) => (
+                <dl class="impact-stat flex-vertical-nowrap justify-content-start alignment-center gap-16 margin-block-0 margin-trim">
+                  <dt class="margin-block-0">
+                    <Paragraph
+                      tag="span"
+                      variant="h2"
+                      class="margin-block-0 text-box-normal"
+                    >
+                      <>
+                        <span class="impact-value-full">{statistic.value}</span>
+                        <span class="impact-value-compact">
+                          {statistic.compact}
+                        </span>
+                      </>
+                    </Paragraph>
+                  </dt>
+                  <dd class="impact-caption margin-block-0">
+                    <Paragraph
+                      variant="main"
+                      class="color-text-2 margin-block-0 text-box-normal"
+                    >
+                      {statistic.label}
+                    </Paragraph>
+                  </dd>
+                </dl>
+              ))
+            }
+          </div>
+        </div>
+        <div class="impact-mission position-relative width-full">
+          <ContentWrapper centered class="padding-inline-sitemargin">
+            <Heading
+              tag="h2"
+              variant="h3"
+              maxWidth={30}
+              id="mission-heading"
+              class="margin-block-0"
+              aria-label={missionParts.join("")}
+            >
+              <span aria-hidden="true"
+                ><span data-mission-part>{missionParts[0]}</span><span
+                  class="impact-highlight accent-purple"
+                  data-mission-part>{missionParts[1]}</span
+                ><span data-mission-part>{missionParts[2]}</span><Underline
+                  animate={false}
+                  progress={1}
+                  ><span data-mission-part>{missionParts[3]}</span></Underline
+                ><span data-mission-part>{missionParts[4]}</span><span
+                  class="impact-caret position-absolute pointer-off">|</span
+                ></span
+              >
+            </Heading>
+          </ContentWrapper>
+        </div>
+      </div>
+    </Section>
+  </div>
+</div>
+<style is:global>
+  @layer components {
+    .impact-scroll {
+      isolation: isolate;
+      overflow: clip;
+    }
+    .impact-pattern {
+      max-width: var(--max-width-small);
+    }
+    .impact-highlight {
+      color: var(--accent);
+    }
+    .impact-value-full,
+    .impact-value-compact {
+      white-space: nowrap;
+    }
+    .impact-scroll[data-sequence] .impact-stage {
+      position: sticky;
+      top: 0;
+      overflow: clip;
+    }
+    .impact-scroll[data-sequence] .impact-frames {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: center;
+      gap: 0;
+      min-height: calc(100svh - var(--section-space-medium) * 2);
+    }
+    .impact-scroll[data-sequence] :is(.impact-viewport, .impact-mission) {
+      grid-area: 1 / 1;
+    }
+    .impact-scroll[data-sequence] .impact-mission {
+      padding-block: 0;
+    }
+    .impact-scroll[data-sequence] .impact-viewport {
+      overflow: clip;
+    }
+    .impact-frames {
+      gap: var(--space-124);
+    }
+    .impact-mission {
+      padding-block: var(--section-space-large);
+    }
+    .impact-caret {
+      display: none;
+    }
+    ::highlight(impact-hidden) {
+      color: transparent;
+    }
+    .impact-rail {
+      --_column-count: 2;
+      --_gap-size: var(--space-16);
+      padding-inline: var(--site-margin);
+    }
+    .impact-stat {
+      min-width: 0;
+    }
+    .impact-value-full {
+      display: none;
+    }
+    @media (width >= 64rem) {
+      .impact-viewport {
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .impact-viewport::-webkit-scrollbar {
+        display: none;
+      }
+      .impact-rail {
+        grid-template-columns: repeat(6, max-content);
+        column-gap: var(--section-space-large);
+        width: max-content;
+      }
+      .impact-stat {
+        padding-block: var(--space-32);
+      }
+      .impact-caption {
+        width: 0;
+        min-width: 100%;
+      }
+      .impact-value-full {
+        display: inline;
+      }
+      .impact-value-compact {
+        display: none;
+      }
+    }
+  }
+</style>
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(
+    "[data-impact-scroll]",
+  )) {
+    const stage = root.querySelector<HTMLElement>(".impact-stage")!;
+    const viewport = root.querySelector<HTMLElement>("[data-impact-viewport]")!;
+    const rail = root.querySelector<HTMLElement>("[data-impact-rail]")!;
+    const statistics = [...rail.querySelectorAll<HTMLElement>(".impact-stat")];
+    const mission = root.querySelector<HTMLElement>(".impact-mission")!;
+    const underline = mission.querySelector<HTMLElement>("[data-underline]")!;
+    const caret = mission.querySelector<HTMLElement>(".impact-caret")!;
+    const parts = [
+      ...mission.querySelectorAll<HTMLElement>("[data-mission-part]"),
+    ].flatMap((node) => {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+      const nodes: Text[] = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+      return nodes;
+    });
+    const length = parts.reduce((sum, node) => sum + node.length, 0);
+    const canHighlight = "highlights" in CSS && "Highlight" in window;
+    const desktop = matchMedia("(min-width: 64rem)");
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const controller = new AbortController();
+    const { signal } = controller;
+    let enabled = false,
+      travel = 0,
+      entrance = 0,
+      fade = 0,
+      typing = 0,
+      stroke = 0,
+      rest = 0;
+    let frame = 0,
+      lastCount = -1;
+    const clamp = (value: number) => Math.max(0, Math.min(1, value));
+    const revealStroke = (value: number) => {
+      const progress = String(clamp(value));
+      if (underline.dataset.progress !== progress)
+        underline.dataset.progress = progress;
+    };
+    // Highlight ranges change paint only: the complete text always retains
+    // its final line breaks, width and alignment, even before it is revealed.
+    const renderText = (count: number, force = false) => {
+      if (count === lastCount && !force) return;
+      lastCount = count;
+      let remaining = count;
+      const hidden: Range[] = [];
+      let cursor: DOMRect | undefined;
+      for (const node of parts) {
+        const visible = Math.max(0, Math.min(node.length, remaining));
+        if (visible < node.length) {
+          const range = new Range();
+          range.setStart(node, visible);
+          range.setEnd(node, node.length);
+          hidden.push(range);
+        }
+        if (visible > 0) {
+          const range = new Range();
+          range.setStart(node, visible - 1);
+          range.setEnd(node, visible);
+          cursor = range.getBoundingClientRect();
+        }
+        remaining -= node.length;
+      }
+      if (canHighlight) {
+        if (hidden.length)
+          CSS.highlights.set("impact-hidden", new Highlight(...hidden));
+        else CSS.highlights.delete("impact-hidden");
+      }
+      caret.style.display = cursor && count < length ? "block" : "none";
+      if (cursor && count < length) {
+        const bounds = mission.getBoundingClientRect();
+        caret.style.left = `${cursor.right - bounds.left}px`;
+        caret.style.top = `${cursor.top - bounds.top}px`;
+      }
+    };
+    const draw = () => {
+      frame = 0;
+      if (!enabled) return;
+      const distance = Math.max(0, -root.getBoundingClientRect().top);
+      const enter = clamp(distance / entrance);
+      const offset = Math.min(travel, Math.max(0, distance - entrance));
+      const fading = clamp((distance - entrance - travel) / fade);
+      const y = (1 - enter) * innerHeight * 0.18;
+      viewport.style.transform = desktop.matches
+        ? `translateY(${y}px)`
+        : "none";
+      viewport.style.opacity = String(
+        (desktop.matches ? enter : 1) * (1 - fading),
+      );
+      statistics.forEach((statistic, index) => {
+        if (desktop.matches) statistic.style.removeProperty("opacity");
+        else {
+          const progress = clamp(
+            (distance - index * innerHeight * 0.12) / (innerHeight * 0.25),
+          );
+          statistic.style.opacity = String(
+            progress * progress * (3 - 2 * progress),
+          );
+        }
+      });
+      rail.style.transform = `translateX(${-offset}px)`;
+      const afterNumbers = distance - entrance - travel - fade;
+      const count = Math.floor(length * clamp(afterNumbers / typing));
+      renderText(count);
+      mission.style.opacity = count > 0 ? "1" : "0";
+      revealStroke((afterNumbers - typing) / stroke);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(draw);
+    };
+    const fitsScreen = () => {
+      const height = mission
+        .querySelector("h2")!
+        .getBoundingClientRect().height;
+      const sectionStyle = getComputedStyle(root.querySelector("section")!);
+      const numbersHeight = rail.getBoundingClientRect().height;
+      return (
+        (desktop.matches ||
+          numbersHeight +
+            parseFloat(sectionStyle.paddingTop) +
+            parseFloat(sectionStyle.paddingBottom) <=
+            innerHeight) &&
+        height +
+          parseFloat(sectionStyle.paddingTop) +
+          parseFloat(sectionStyle.paddingBottom) <=
+          innerHeight
+      );
+    };
+    const measure = () => {
+      enabled = !reduced.matches && canHighlight && fitsScreen();
+      root.toggleAttribute("data-sequence", enabled);
+      viewport.tabIndex = desktop.matches && !enabled ? 0 : -1;
+      if (enabled) {
+        viewport.scrollLeft = 0;
+        travel = desktop.matches
+          ? Math.max(0, rail.scrollWidth - viewport.clientWidth)
+          : 0;
+        entrance = innerHeight * (desktop.matches ? 0.25 : 1.05);
+        fade = innerHeight * 0.3;
+        typing = innerHeight * 1.2;
+        stroke = innerHeight * 0.35;
+        rest = innerHeight * 0.25;
+        root.style.height = `${stage.offsetHeight + entrance + travel + fade + typing + stroke + rest}px`;
+        lastCount = -1;
+        draw();
+      } else {
+        renderText(length, true);
+        revealStroke(1);
+        mission.style.opacity = "1";
+        root.style.removeProperty("height");
+        for (const node of [viewport, rail])
+          node.style.removeProperty("transform");
+        viewport.style.removeProperty("opacity");
+        statistics.forEach((statistic) =>
+          statistic.style.removeProperty("opacity"),
+        );
+      }
+    };
+    const resize = new ResizeObserver(measure);
+    resize.observe(stage);
+    resize.observe(rail);
+    addEventListener("scroll", schedule, { passive: true, signal });
+    addEventListener("resize", measure, { passive: true, signal });
+    desktop.addEventListener("change", measure, { signal });
+    reduced.addEventListener("change", measure, { signal });
+    void document.fonts.ready.then(measure);
+    measure();
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        resize.disconnect();
+        cancelAnimationFrame(frame);
+        if (canHighlight) CSS.highlights.delete("impact-hidden");
+      },
+      { once: true },
+    );
+  }
+</script>

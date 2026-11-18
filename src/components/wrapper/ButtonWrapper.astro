@@ -1,0 +1,48 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { slotContent } from "@/utils/slots.ts";
+import type { SpacingStep } from "@/data/spacing";
+
+type WrapperMargin = "default" | "0" | SpacingStep | "auto";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Top margin. */
+  marginTop?: WrapperMargin;
+}
+
+const {
+  render = true,
+  marginTop = "default",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const content = await slotContent(Astro.slots);
+---
+
+{
+  render && content && (
+    <div
+      class:list={[
+        "button-wrapper",
+        marginTop !== "default" && `margin-top-${marginTop}`,
+        className,
+      ]}
+      {...rest}
+    >
+      <Fragment set:html={content} />
+    </div>
+  )
+}
+
+<style is:global>
+  @layer components {
+    @media (width < 48rem) {
+      .button-wrapper {
+        width: 100%;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+import Marquee from "@/components/interactive/Marquee.astro";
+import Logo from "@/components/media/Logo.astro";
+import type { LogoName } from "@/data/logos";
+const partners: LogoName[] = [
+  "brainsome",
+  "dashinFoundation",
+  "adtech",
+  "vizor",
+  "indrive",
+  "foundersCy",
+  "mellow",
+  "justinJoy",
+];
+---
+
+<div class="theme-dark background-1 width-full padding-block-24">
+  <Marquee label="Our partners" showControls={false}>
+    {
+      partners.map((logo) => (
+        <div class="hero-partner_logo">
+          <Logo logo={logo} />
+        </div>
+      ))
+    }
+  </Marquee>
+</div>
+<style is:global>
+  @layer components {
+    .hero-partner_logo {
+      height: var(--space-40);
+      filter: invert(1);
+    }
+  }
+</style>

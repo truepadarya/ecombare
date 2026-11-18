@@ -1,0 +1,286 @@
+.heading:has(+ .text) {
+  margin-bottom: var(--_margin-bottom);
+}
+
+.heading,
+.text {
+  margin-top: var(--_margin-top);
+  max-width: min(var(--_mw, 100%), 100%);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.heading + .text {
+  margin-top: 0;
+}
+
+.section {
+  padding-top: var(--section-space-medium);
+  padding-bottom: var(--section-space-medium);
+  background-color: var(--background);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+}
+
+.container {
+  width: var(--site-width);
+  max-width: var(--max-width-main);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: var(--_alignment, start);
+  gap: var(--space-64);
+  position: relative;
+  margin-inline: auto;
+  & > [class] {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+.button-wrapper {
+  margin-top: var(--space-40);
+  display: flex;
+  flex-flow: wrap;
+  align-items: center;
+  justify-content: var(--_alignment, start);
+  grid-column-gap: var(--space-12);
+  grid-row-gap: var(--space-12);
+}
+
+.image {
+  background-color: var(--background-skeleton);
+
+  &.densities {
+    width: auto;
+    max-width: 100%;
+  }
+
+  &.transparent {
+    background-color: transparent;
+    object-fit: contain;
+  }
+}
+
+.video {
+  background-color: var(--background-skeleton);
+  height: auto;
+
+  &.transparent {
+    background-color: transparent;
+    object-fit: contain;
+  }
+}
+/* Section background children */
+.section > :where(:not(.container)) {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Flex */
+.flex-horizontal-wrap {
+  display: flex;
+  flex-flow: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: var(--_alignment, start);
+}
+
+.flex-horizontal-nowrap {
+  display: flex;
+  flex-flow: row;
+  align-content: center;
+  align-items: center;
+  justify-content: var(--_alignment, start);
+}
+
+.flex-vertical-wrap {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: var(--_alignment, start);
+}
+
+.flex-vertical-nowrap {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: var(--_alignment, start);
+}
+
+/* Grid */
+.grid-autofit {
+  --_gap-size: var(--site-gutter);
+  --_column-count: 12;
+  display: grid;
+  grid-column-gap: var(--_gap-size);
+  grid-row-gap: var(--_gap-size);
+  grid-template-rows: auto;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(max(8rem, (100% - ((var(--_column-count) - 1) * var(--_gap-size))) / var(--_column-count)), 100%), 1fr));
+}
+
+.grid-autofill {
+  --_gap-size: var(--site-gutter);
+  --_column-count: 12;
+  display: grid;
+  grid-column-gap: var(--_gap-size);
+  grid-row-gap: var(--_gap-size);
+  grid-template-rows: auto;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(max(8rem, (100% - ((var(--_column-count) - 1) * var(--_gap-size))) / var(--_column-count)), 100%), 1fr));
+}
+
+/* Trim, clamp & cover */
+:is(.margin-trim, .heading, .text, .layout > *) {
+  & > :first-child {
+    margin-top: 0;
+  }
+  & > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+[class*="line-clamp"] {
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cover-absolute {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0%;
+}
+
+.heading-accent strong {
+  color: var(--heading-accent);
+  font-weight: inherit;
+}
+
+.display-contents {
+  display: contents;
+  align-items: inherit;
+  justify-content: inherit;
+  text-align: inherit;
+}
+
+.field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  width: 100%;
+}
+
+.field-label {
+  display: flex;
+  overflow-wrap: anywhere;
+}
+
+.field-star {
+  color: var(--text-2);
+}
+
+.field-control {
+  text-box: normal;
+  min-width: 0;
+  --_field-pad-block: var(--space-16);
+  width: 100%;
+  min-height: max(var(--field-min-height), calc(1lh + var(--_field-pad-block) * 2 + var(--border-width) * 2));
+  padding: var(--_field-pad-block) var(--field-pad-inline);
+  background-color: var(--field-background);
+  color: var(--field-text);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-main);
+  transition:
+    background-color var(--hover-duration) var(--hover-ease),
+    border-color var(--hover-duration) var(--hover-ease);
+  &::placeholder {
+    color: var(--field-placeholder);
+  }
+  &[data-placeholder-weight="regular"]::placeholder {
+    font-weight: var(--primary-regular);
+  }
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: var(--field-background-hover);
+    }
+  }
+  &:is(:focus, :active):not(:disabled) {
+    background-color: var(--field-background-hover);
+    color: var(--field-text-focus);
+  }
+  &:focus-visible {
+    border-color: var(--focus-color);
+    outline-offset: var(--focus-offset-inner);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  &:is(:user-invalid, [aria-invalid="true"]):not(:disabled) {
+    --focus-color: var(--error);
+    border-color: var(--error);
+  }
+}
+
+/* Rich text */
+:is(.rich-text, .u-rich-text) {
+  min-width: 0;
+  max-width: var(--_mw, 100%);
+  & :is(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, figure, pre, table) {
+    margin-top: var(--_margin-top);
+    margin-bottom: var(--_margin-bottom);
+  }
+
+  & > :first-child,
+  & :is(blockquote, li) > :first-child:not(:is(ul, ol)) {
+    margin-top: 0;
+  }
+  & > :last-child,
+  & :is(blockquote, li) > :last-child {
+    margin-bottom: 0;
+  }
+
+  & :is(ul, ol) {
+    padding-left: 1.5em;
+  }
+  & ul {
+    list-style-type: disc;
+  }
+  & ul ul {
+    list-style-type: circle;
+  }
+  & ul ul ul {
+    list-style-type: square;
+  }
+  & ol {
+    list-style-type: decimal;
+  }
+  & li::marker {
+    color: color-mix(in lab, currentcolor 60%, transparent);
+  }
+  & li + li {
+    margin-top: var(--space-12);
+  }
+
+  & li > :is(ul, ol) {
+    margin-block: var(--space-12);
+  }
+
+  & blockquote {
+    padding-left: var(--space-24);
+    border-left: var(--border-width) solid var(--border);
+  }
+}
